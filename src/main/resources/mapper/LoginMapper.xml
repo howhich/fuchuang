@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.howhich.fuchuang.demos.mapper.LoginMapper">
+
+
+    <select id="getUserByUserName" resultType="com.howhich.fuchuang.demos.entity.User">
+        select id,username,password,role,status from fuchuang.user
+        where fuchuang.user.username = #{username}
+    </select>
+    <select id="getRoleById" resultType="java.lang.String">
+        select role from fuchuang.user
+        where fuchuang.user.id = #{loginId}
+    </select>
+</mapper>
