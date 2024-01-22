@@ -3,7 +3,7 @@
 <mapper namespace="com.howhich.fuchuang.demos.mapper.LoginMapper">
 
 
-    <select id="getUserByUserName" resultType="com.howhich.fuchuang.demos.entity.User">
+    <select id="getUserByUserName" resultType="com.howhich.fuchuang.demos.entity.resp.User">
         select id,username,password,role,status from fuchuang.user
         where fuchuang.user.username = #{username}
     </select>

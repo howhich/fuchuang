@@ -1,6 +1,5 @@
 package com.howhich.fuchuang;
 
-import com.howhich.fuchuang.demos.entity.User;
 import com.howhich.fuchuang.demos.mapper.UsersInfoMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

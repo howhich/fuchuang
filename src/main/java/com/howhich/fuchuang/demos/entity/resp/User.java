@@ -1,11 +1,11 @@
-package com.howhich.fuchuang.demos.entity;
+package com.howhich.fuchuang.demos.entity.resp;
 
+import com.howhich.fuchuang.demos.entity.Base.BaseDeleteEntity;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-public class User {
+public class User extends BaseDeleteEntity {
     @ApiModelProperty(notes = "id")
     private Long id;
     @ApiModelProperty(notes = "用户名")
@@ -24,12 +24,6 @@ public class User {
     private String sex;
     @ApiModelProperty(value = "YES",notes = "账号状态")
     private String status;
-    @ApiModelProperty(notes = "创建时间")
-    private String createTime;
-    @ApiModelProperty(notes = "创建人")
-    private String createUser;
-    @ApiModelProperty(notes = "更新时间")
-    private String updateTime;
-    @ApiModelProperty(notes = "更新人")
-    private String updateUser;
+
+
 }

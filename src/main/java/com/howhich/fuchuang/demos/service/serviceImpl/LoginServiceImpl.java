@@ -5,8 +5,8 @@ import com.howhich.fuchuang.demos.Utils.exception.AssertUtils;
 import com.howhich.fuchuang.demos.Utils.exception.ExceptionsEnums;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.constant.UserStatus;
-import com.howhich.fuchuang.demos.entity.User;
 import com.howhich.fuchuang.demos.entity.req.UserLoginReqVO;
+import com.howhich.fuchuang.demos.entity.resp.User;
 import com.howhich.fuchuang.demos.entity.resp.UserLoginRespVO;
 import com.howhich.fuchuang.demos.mapper.LoginMapper;
 import com.howhich.fuchuang.demos.service.LoginService;
@@ -46,6 +46,7 @@ public class LoginServiceImpl implements LoginService {
 
         //redis储存用户信息
         redisTemplate.opsForValue().set("role",user.getRole());
+//        redisTemplate.opsForValue().set("user");
 
         //封装返回类
         UserLoginRespVO respVO = new UserLoginRespVO();
