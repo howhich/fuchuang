@@ -1,69 +1,47 @@
-package com.howhich.fuchuang.demos.controller;
+package com.howhich.fuchuang.demos.service.serviceImpl;
 
-import cn.dev33.satoken.annotation.SaCheckRole;
-import cn.dev33.satoken.stp.StpUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
 import com.howhich.fuchuang.demos.constant.Result;
-import com.howhich.fuchuang.demos.constant.RoleType;
 import com.howhich.fuchuang.demos.entity.Base.Record;
-import com.howhich.fuchuang.demos.entity.req.UsersInfoParam;
-import com.howhich.fuchuang.demos.entity.resp.GetUsersRespVO;
-import com.howhich.fuchuang.demos.service.AuthService;
+import com.howhich.fuchuang.demos.entity.req.ImportRecordsReqVO;
+import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
+import com.howhich.fuchuang.demos.mapper.RecordMapper;
 import com.howhich.fuchuang.demos.service.RecordsService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@RestController
-@RequestMapping("/test")
-@Api(tags = "测试接口")
-@Slf4j
-//@SaCheckLogin
-public class TestController {
-    @Resource
-    private AuthService authService;
-    @Resource
-    private RecordsService recordsService;
+@Service
+public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implements RecordsService {
+    @Override
+    public Result<ImportRecordsRespVO> page(ImportRecordsReqVO reqVO) {
+        LambdaQueryWrapper queryWrapper = new LambdaQueryWrapper<Record>();
+        Page<Record> page = new Page<>(reqVO.getPage(),reqVO.getPageSize());
+        page = this.page(page,queryWrapper);
 
-    @GetMapping("/hello")
-    @ApiOperation("token测试")
-    public String test1(){
-        log.info("auth:"+StpUtil.getTokenValue());
-        return (StpUtil.getLoginIdAsString());
-    }
-    @SaCheckRole(RoleType.TEACHER.code)
-    @GetMapping("/auth")
-    @ApiOperation("权限测试")
-    public String test2(){
-        return StpUtil.getRoleList().get(0);
+        PageHelper.startPage(reqVO.getPage(),reqVO.getPageSize());
+        page = this.page(page,queryWrapper);
+
+        long count = this.count();
+
+        ImportRecordsRespVO respVO = new ImportRecordsRespVO();
+        respVO.setList(page.getRecords());
+        respVO.setTotal(count);
+        return Result.success(respVO);
     }
 
-    @GetMapping("/getRole")
-    @ApiOperation("获取角色")
-    public String getRole(){
-        return StpUtil.getRoleList().toString();
-    }
-
-    @GetMapping("/getUsers")
-    @ApiOperation("获取所有用户信息")
-    public Result<GetUsersRespVO> getUsers(UsersInfoParam usersInfoParam){
-        return authService.page(usersInfoParam);
-    }
-
-    @PostMapping("/photo")
-    @ApiOperation("上传图片测试")
-    public Result uploadPhoto(@RequestBody MultipartFile file) throws IOException {
-        
-
+    @Override
+    public Result importSinglePhoto(MultipartFile file) throws IOException {
         FileInputStream fileInputStream = (FileInputStream) file.getInputStream();
 
         UUID uuid = UUID.randomUUID();
@@ -73,10 +51,15 @@ public class TestController {
         Record record = new Record();
         record.setUrl(detaiURL);
         record.setRecordName(file.getOriginalFilename());
-        recordsService.save(record);
+        this.save(record);
 // TODO 不需要存到数据库里面 数据库只存图片URI即可
         String basicURL = "src/main/resources/static/";
-        FileOutputStream fileOutputStream = new FileOutputStream(basicURL + detaiURL);
+        FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = new FileOutputStream(basicURL + detaiURL);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         byte[] buffer = new byte[1024];
         int len = 0;
@@ -86,15 +69,15 @@ public class TestController {
         fileOutputStream.close();
         return Result.success("完成上传");
     }
-    @PostMapping("/photoBatch")
-    @ApiOperation(value = "批量上传图片测试")
-    public Result uploadPhotoByBacth(@RequestBody List<MultipartFile> fileList) {
+
+    @Override
+    public Result importBatchPhotp(List<MultipartFile> fileList) {
         String basicURL = "src/main/resources/static/";
         List<Record> records = new ArrayList<>();
         fileList.forEach(file -> {
             FileInputStream fileInputStream;
             try {
-                 fileInputStream = (FileInputStream)file.getInputStream();
+                fileInputStream = (FileInputStream)file.getInputStream();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -123,7 +106,7 @@ public class TestController {
                 throw new RuntimeException(e);
             }
         });
-        recordsService.saveBatch(records);
+        this.saveBatch(records);
         int count = records.size();
         return Result.success("完成上传,共计图片数量："+count);
     }

@@ -1,12 +1,14 @@
 package com.howhich.fuchuang.demos.service.serviceImpl;
 
+import cn.dev33.satoken.stp.SaLoginModel;
 import cn.dev33.satoken.stp.StpUtil;
 import com.howhich.fuchuang.demos.Utils.exception.AssertUtils;
 import com.howhich.fuchuang.demos.Utils.exception.ExceptionsEnums;
+import com.howhich.fuchuang.demos.constant.RememberMe;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.constant.UserStatus;
 import com.howhich.fuchuang.demos.entity.req.UserLoginReqVO;
-import com.howhich.fuchuang.demos.entity.resp.User;
+import com.howhich.fuchuang.demos.entity.Base.User;
 import com.howhich.fuchuang.demos.entity.resp.UserLoginRespVO;
 import com.howhich.fuchuang.demos.mapper.LoginMapper;
 import com.howhich.fuchuang.demos.service.LoginService;
@@ -52,7 +54,18 @@ public class LoginServiceImpl implements LoginService {
         UserLoginRespVO respVO = new UserLoginRespVO();
         respVO.setUsername(user.getUsername());
         respVO.setId(user.getId());
-        StpUtil.login(user.getId());
+        //判断角色是否正确？
+        AssertUtils.isFalse(user.getRole().equals(reqVO.getRole()),ExceptionsEnums.Login.ROLE_MISMATCH);
+        respVO.setRole(user.getRole());
+        //判断记住我模式？
+        if(RememberMe.YES.code.equals(reqVO.getRememberMe())){
+        //记住我模式默认7天免密码登录
+            StpUtil.login(user.getId(), new SaLoginModel().setTimeout(60 * 60 * 24 * 7));
+        }else {
+        //否则每次需要登陆
+            StpUtil.login(user.getId(),false);
+        }
+
         respVO.setAuthorization(StpUtil.getTokenValue());
         return Result.success(respVO);
     }

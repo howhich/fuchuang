@@ -3,12 +3,13 @@ package com.howhich.fuchuang.demos.service.serviceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.constant.UserStatus;
-import com.howhich.fuchuang.demos.entity.req.GetUsersReqVO;
 import com.howhich.fuchuang.demos.entity.req.UsersInfoParam;
 import com.howhich.fuchuang.demos.entity.resp.GetUsersRespVO;
-import com.howhich.fuchuang.demos.entity.resp.User;
+import com.howhich.fuchuang.demos.entity.Base.User;
 import com.howhich.fuchuang.demos.mapper.AuthMapper;
 import com.howhich.fuchuang.demos.mapper.UsersInfoMapper;
 import com.howhich.fuchuang.demos.service.AuthService;
@@ -24,21 +25,21 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 
     @Autowired
     private AuthMapper authMapper;
-    @Override
-    public Result<GetUsersRespVO> getUsers(GetUsersReqVO reqVO) {
-        return null;
-    }
+
 
     @Override
     public Result<GetUsersRespVO> page(UsersInfoParam usersInfoParam) {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         Page<User> page = new Page(usersInfoParam.getPage(),usersInfoParam.getPageSize());
+
+        PageHelper.startPage(usersInfoParam.getPage(),usersInfoParam.getPageSize());
         page = this.page(page,queryWrapper);
-        User usersInfo = new User();
-        System.out.println(page);
+
+        long count = this.count();
+
         GetUsersRespVO respVO = new GetUsersRespVO();
         respVO.setList(page.getRecords());
-        respVO.setTotal(page.getTotal());
+        respVO.setTotal(count);
         return Result.success(respVO);
     }
 
@@ -93,6 +94,18 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
         user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
         this.update(user, lambdaQueryWrapper);
         return Result.success("修改成功");
+    }
+
+    @Override
+    public Result registry(User user) {
+        User user1 = User.builder()
+                .role(user.getRole())
+                .status(UserStatus.YES.code)
+                .username(user.getUsername())
+                .password(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()))
+                .build();
+        this.save(user1);
+        return Result.success("注册成功");
     }
 
 

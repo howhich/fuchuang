@@ -4,12 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 public interface RoleType {
-    @Getter
-    @AllArgsConstructor
-    class ADMIN implements RoleType{
-        public static final String code = "ADMIN";
-        public static final String name = "管理员";
-    }
+//    @Getter
+//    @AllArgsConstructor
+//    class ADMIN implements RoleType{
+//        public static final String code = "ADMIN";
+//        public static final String name = "管理员";
+//    }
     @Getter
     @AllArgsConstructor
     class USER implements RoleType{

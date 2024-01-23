@@ -19,6 +19,7 @@ public class MyMetaObjectHandler  implements MetaObjectHandler {
     public void insertFill(MetaObject metaObject) {
         this.setFieldValByName("createTime", new Date(), metaObject);
         this.setFieldValByName("updateTime", new Date(), metaObject);
+        if(!StpUtil.isLogin())return;
         this.setFieldValByName("createUser", StpUtil.getLoginIdAsLong(),metaObject);
         this.setFieldValByName("updateUser", StpUtil.getLoginIdAsLong(),metaObject);
     }
@@ -26,6 +27,7 @@ public class MyMetaObjectHandler  implements MetaObjectHandler {
     @Override
     public void updateFill(MetaObject metaObject) {
         this.setFieldValByName("updateTime", new Date(), metaObject);
+        if(!StpUtil.isLogin())return;
         this.setFieldValByName("updateUser", StpUtil.getLoginIdAsLong(),metaObject);
 
     }

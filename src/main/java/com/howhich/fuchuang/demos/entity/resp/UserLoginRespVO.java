@@ -10,6 +10,8 @@ public class UserLoginRespVO {
     private String username;
     @ApiModelProperty(notes = "id")
     private Long id;
+    @ApiModelProperty(notes = "角色")
+    private String role;
 //    @ApiModelProperty(notes = "密码")
 //    private String password;
     @ApiModelProperty(notes = "token")

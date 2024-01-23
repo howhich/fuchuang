@@ -38,7 +38,8 @@ public interface ExceptionsEnums extends Exceptions{
         ACCOUNT_NOT_EXT(500, "登录账号不存在"),
         USER_CLOSE(500, "当前账号已被禁用,请联系管理员"),
         LOGOUT_FAIL(500,"登出失败"),
-        NO_ROLE(500,"用户未分配角色");
+        NO_ROLE(500,"用户未分配角色"),
+        ROLE_MISMATCH(500,"角色不匹配");
         private final int code;
         private final String msg;
     }
