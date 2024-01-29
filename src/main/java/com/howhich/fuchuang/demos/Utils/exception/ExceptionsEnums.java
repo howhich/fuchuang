@@ -21,7 +21,7 @@ public interface ExceptionsEnums extends Exceptions{
     @Getter
     @AllArgsConstructor
     enum UserEX implements ExceptionsEnums {
-        USER_HAVE(500, "该账号或手机号已存在"),
+        USER_HAVE(500, "该账号已存在"),
         NOT_PREMISS(401, "无访问权限"),
         ACCOUNT_NOT_FIND(500, "未查询到该用户信息"),
         NO_LOGIN(500, "请求异常，无登录信息"),

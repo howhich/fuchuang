@@ -72,6 +72,8 @@ public class TestController {
 
         Record record = new Record();
         record.setUrl(detaiURL);
+        System.out.println(file.getOriginalFilename());
+        System.out.println(file.getName());
         record.setRecordName(file.getOriginalFilename());
         recordsService.save(record);
 // TODO 不需要存到数据库里面 数据库只存图片URI即可

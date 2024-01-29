@@ -3,7 +3,7 @@ package com.howhich.fuchuang.demos.constant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-public interface RoleType {
+public interface StatusType {
 //    @Getter
 //    @AllArgsConstructor
 //    class ADMIN implements RoleType{
@@ -12,14 +12,14 @@ public interface RoleType {
 //    }
     @Getter
     @AllArgsConstructor
-    class STUDENT implements RoleType{
-        public static final String code = "STUDENT";
-        public static final String name = "用户";
+    class JUDGING implements StatusType {
+        public static final String code = "JUDGING";
+        public static final String name = "评审中";
     }
     @Getter
     @AllArgsConstructor
-    class TEACHER implements RoleType{
-        public static final String code = "TEACHER";
-        public static final String name = "老师";
+    class FINISH implements StatusType {
+        public static final String code = "FINISH";
+        public static final String name = "已完成";
     }
 }

@@ -31,5 +31,4 @@ public class User extends BaseDeleteEntity {
     @ApiModelProperty(value = "YES",notes = "账号状态")
     private String status;
 
-
 }

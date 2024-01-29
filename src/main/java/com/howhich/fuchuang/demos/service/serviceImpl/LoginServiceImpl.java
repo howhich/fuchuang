@@ -48,6 +48,7 @@ public class LoginServiceImpl implements LoginService {
 
         //redis储存用户信息
         redisTemplate.opsForValue().set("role",user.getRole());
+        redisTemplate.opsForValue().set("username",user.getUsername());
 //        redisTemplate.opsForValue().set("user");
 
         //封装返回类

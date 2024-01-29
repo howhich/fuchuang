@@ -9,7 +9,7 @@
 
 
     <select id="getAllClasse" resultType="com.howhich.fuchuang.demos.entity.Base.Clazz">
-        select id,teacher_id,class_name,deleted
+        select id,teacher_id,class_name
         from fuchuang.clazz
         where teacher_id = #{id}
     </select>

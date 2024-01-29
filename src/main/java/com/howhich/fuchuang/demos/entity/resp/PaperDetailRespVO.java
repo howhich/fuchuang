@@ -1,16 +1,22 @@
-package com.howhich.fuchuang.demos.entity.Base;
+package com.howhich.fuchuang.demos.entity.resp;
 
+import com.howhich.fuchuang.demos.entity.Base.Question;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Builder
-public class PaperDetail {
+public class PaperDetailRespVO {
+    @ApiModelProperty(value = "题目列表")
+    private List<Question> questions = new ArrayList<>();
     @ApiModelProperty(notes = "试卷详情id")
     private Long id;
     @ApiModelProperty(notes = "试卷记录id")

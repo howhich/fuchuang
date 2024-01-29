@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,7 +19,9 @@ public class PaperResult {
     private Long recordId;
     @ApiModelProperty(notes = "状态")
     private String status;
-    @ApiModelProperty(notes = "URL(定位试卷名称)")
+    @ApiModelProperty(notes = "(定位试卷名称)")
     private String paperName;
+    @ApiModelProperty(notes = "创建时间")
+    private String createTime;
     private String deleted;
 }
