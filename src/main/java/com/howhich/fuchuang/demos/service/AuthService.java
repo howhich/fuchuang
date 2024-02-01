@@ -2,12 +2,8 @@ package com.howhich.fuchuang.demos.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.howhich.fuchuang.demos.constant.Result;
-import com.howhich.fuchuang.demos.entity.Base.Clazz;
-import com.howhich.fuchuang.demos.entity.Base.Student;
 import com.howhich.fuchuang.demos.entity.req.*;
-import com.howhich.fuchuang.demos.entity.resp.GetAllClassRespVO;
-import com.howhich.fuchuang.demos.entity.resp.GetAllStudentsByClassIdRespVO;
-import com.howhich.fuchuang.demos.entity.resp.GetUsersRespVO;
+import com.howhich.fuchuang.demos.entity.resp.*;
 import com.howhich.fuchuang.demos.entity.Base.User;
 
 import java.util.List;
@@ -20,22 +16,23 @@ public interface AuthService extends IService<User> {
 
     Result add(User user);
 
+    Result resetUsers(List<Long> ids);
 
-    Result edit(EditStudentReqVO reqVO);
-
-    Result resetUsers(List<UsersInfoParam> usersInfoParamList);
-
-    Result editSelf(User user);
-
-    Result registry(User user);
+    Result registry(RegistryUserReqVO reqVO);
 
     Result<GetAllClassRespVO> getAllClasses(GetAllClassReqVO reqVO);
 
-    Result<GetAllStudentsByClassIdRespVO> getAllStudentsByClassId(Long classId);
+    Result<GetAllStudentsByClassIdRespVO> getAllStudentsByClassId(GetAllStudentsByClassIdReqVO reqVO);
 
     Result bindStudentById(BindStudentReqVO reqVO);
 
-    Result registeStudent(RegisteStudentReqVO reqVO);
+    Result registeStudent(TeacherRegisteReqVO reqVO);
 
-    Result registy(RegisteStudentReqVO reqVO);
+    Result studentEdit(StudentEditReqVO reqVO);
+
+    Result teacherEdit(TeacherEditReqVO reqVO);
+
+    Result<GetStudentInfoRespVO> getStudentInfo();
+
+    Result<GetTeacherInfoRespVO> getTeacherInfo();
 }

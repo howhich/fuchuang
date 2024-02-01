@@ -6,5 +6,5 @@ import com.howhich.fuchuang.demos.entity.Base.Question;
 
 public interface QuestionService extends IService<Question> {
 
-//    Result registy(RegisteStudentReqVO reqVO);
+//    Result stundetEdit(StudentEditReqVO reqVO);
 }

@@ -12,5 +12,5 @@ public class BindStudentReqVO {
     @ApiModelProperty(notes = "班级ID")
     private Long classId;
     @ApiModelProperty(notes = "学号列表")
-    private String studentNum;
+    private List<String> studentNums;
 }

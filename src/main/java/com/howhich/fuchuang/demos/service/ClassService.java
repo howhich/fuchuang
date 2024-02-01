@@ -6,5 +6,5 @@ import com.howhich.fuchuang.demos.entity.Base.Student;
 
 public interface ClassService extends IService<Clazz> {
 
-//    Result registy(RegisteStudentReqVO reqVO);
+//    Result stundetEdit(StudentEditReqVO reqVO);
 }

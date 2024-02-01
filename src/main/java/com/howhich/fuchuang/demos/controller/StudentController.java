@@ -1,7 +1,7 @@
 package com.howhich.fuchuang.demos.controller;
 
 import com.howhich.fuchuang.demos.constant.Result;
-import com.howhich.fuchuang.demos.entity.req.RegisteStudentReqVO;
+import com.howhich.fuchuang.demos.entity.req.StudentEditReqVO;
 import com.howhich.fuchuang.demos.service.StudentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,7 +19,7 @@ public class StudentController {
     private StudentService studentService;
     @PostMapping("/registy")
     @ApiOperation(value = "学生自己注册")
-    public Result registry(@RequestBody RegisteStudentReqVO reqVO){
+    public Result registry(@RequestBody StudentEditReqVO reqVO){
 
         return Result.success();
     }

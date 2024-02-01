@@ -14,12 +14,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Teacher {
+public class Teacher extends BaseEntity{
     @ApiModelProperty(notes = "用户ID")
-    private Long userId;
+    private Long id;
     @ApiModelProperty(notes = "学校")
     private String school;
     @ApiModelProperty(notes = "学科")
     private String subject;
-
+    @ApiModelProperty(notes = "教师名称")
+    private String name;
 }

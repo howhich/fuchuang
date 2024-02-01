@@ -1,14 +1,11 @@
 package com.howhich.fuchuang.demos.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import com.howhich.fuchuang.demos.constant.Result;
-import com.howhich.fuchuang.demos.entity.Base.Clazz;
-import com.howhich.fuchuang.demos.entity.Base.Student;
+import com.howhich.fuchuang.demos.constant.RoleType;
 import com.howhich.fuchuang.demos.entity.req.*;
-import com.howhich.fuchuang.demos.entity.resp.GetAllClassRespVO;
-import com.howhich.fuchuang.demos.entity.resp.GetAllStudentsByClassIdRespVO;
-import com.howhich.fuchuang.demos.entity.resp.GetUsersRespVO;
-import com.howhich.fuchuang.demos.entity.Base.User;
+import com.howhich.fuchuang.demos.entity.resp.*;
 import com.howhich.fuchuang.demos.service.AuthService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,40 +25,35 @@ public class AuthController {
         this.authService = authService;
     }
 
-//    @PostMapping("/getUserList")
-//    @ApiOperation(value = "老师获取所有用户")
-//    @SaCheckRole(value = RoleType.ADMIN.code)
-//    public Result<GetUsersRespVO> getUsers(@RequestBody GetUsersReqVO reqVO){
-//        return authService.getUsers(reqVO);
-//    }
-    @GetMapping("/getAllClasses")
+    @SaCheckRole(value = RoleType.TEACHER.code)
+    @PostMapping("/getAllClasses")
     @ApiOperation(value = "老师获取当前所有班级")
     public Result<GetAllClassRespVO> getAllClasses(@RequestBody GetAllClassReqVO reqVO){
         long id = StpUtil.getLoginIdAsLong();
         reqVO.setTeacherId(id);
         return authService.getAllClasses(reqVO);
     }
+    @SaCheckRole(value = RoleType.TEACHER.code)
     @PostMapping("/getAllStudentsByClassId")
-    @ApiOperation(value = "通过班级ID获取所有学生")
-    public Result<GetAllStudentsByClassIdRespVO> getAllStudentsByClassId(@RequestParam Long classId){
-        return authService.getAllStudentsByClassId(classId);
+    @ApiOperation(value = "老师通过班级ID获取所有学生")
+    public Result<GetAllStudentsByClassIdRespVO> getAllStudentsByClassId(@RequestBody GetAllStudentsByClassIdReqVO reqVO){
+        return authService.getAllStudentsByClassId(reqVO);
     }
+    @SaCheckRole(value = RoleType.TEACHER.code)
     @PostMapping("/bindStudentById")
-    @ApiOperation(value = "通过学生Id绑定")
+    @ApiOperation(value = "老师通过学生学号列表绑定")
     public Result bindStudentById(@RequestBody BindStudentReqVO reqVO){
         return authService.bindStudentById(reqVO);
     }
-
-
-
+    @SaCheckRole(value = RoleType.TEACHER.code)
     @PostMapping("/registeStudent")
-    @ApiOperation(value = "注册学生")
-    public Result registeStudent(@RequestBody RegisteStudentReqVO reqVO){
+    @ApiOperation(value = "老师注册学生")
+    public Result registeStudent(@RequestBody TeacherRegisteReqVO reqVO){
         return authService.registeStudent(reqVO);
     }
-
-    @GetMapping("/getUsersInfo")
-    @ApiOperation(value = "获取所有用户信息")
+    @SaCheckRole(value = RoleType.TEACHER.code)
+    @PostMapping("/getUsersInfo")
+    @ApiOperation(value = "管理员获取所有用户信息")
     public Result<GetUsersRespVO> getUsers(@RequestBody UsersInfoParam usersInfoParam){
         return authService.page(usersInfoParam);
     }
@@ -72,41 +64,46 @@ public class AuthController {
         return authService.delete(usersInfoParamList);
     }
 
-    @PostMapping("/addUser")
-    @ApiOperation(value = "老师添加用户")
-    public Result addUser(@RequestBody User user){
-        return authService.add(user);
-    }
 
     @PostMapping("/registry")
-    @ApiOperation(value = "注册")
-    public Result registryUser(@RequestBody User user){
-        return authService.registry(user);
+    @ApiOperation(value = "用户注册(选择学生or老师)")
+    public Result registryUser(@RequestBody RegistryUserReqVO reqVO){
+        return authService.registry(reqVO);
     }
 
-//    @PostMapping("/updateUser")
-//    @ApiOperation(value = "老师更改用户")
-//    public Result updateUser(@RequestBody User user){ return authService.edit(user);}
 
     @PostMapping("/resetUsers")
     @ApiOperation(value = "老师批量重置用户密码")
-    public Result resetUsers(@RequestBody List<UsersInfoParam> usersInfoParamList){
-        return authService.resetUsers(usersInfoParamList);
+    public Result resetUsers(@RequestBody List<Long> ids){
+        return authService.resetUsers(ids);
+    }
+    @SaCheckRole(value = RoleType.STUDENT.code)
+    @GetMapping("/studentInfo")
+    @ApiOperation(value = "学生获取自身信息")
+    public Result<GetStudentInfoRespVO> getStudentInfo(){
+        return authService.getStudentInfo();
     }
 
-//    @PostMapping("/updateSelf")
-//    @ApiOperation("用户更改自己信息")
-//    public Result updateSelf(@RequestBody User user){return authService.editSelf(user);}
-
-    @PostMapping("/studentRegistry")
-    @ApiOperation(value = "学生自己注册")
-    public Result registry(@RequestBody RegisteStudentReqVO reqVO){
-        return authService.registy(reqVO);
-    }
-
+    @SaCheckRole(value = RoleType.STUDENT.code)
     @PostMapping("/studentEdit")
     @ApiOperation(value = "学生编辑自身信息")
-    public Result edit(@RequestBody EditStudentReqVO reqVO){
-        return authService.edit(reqVO);
+    public Result registry(@RequestBody StudentEditReqVO reqVO){
+        return authService.studentEdit(reqVO);
     }
+
+    @SaCheckRole(value = RoleType.TEACHER.code)
+    @GetMapping("/teacherInfo")
+    @ApiOperation(value = "老师获取自身信息")
+    public Result<GetTeacherInfoRespVO> getTeacherInfo(){
+        return authService.getTeacherInfo();
+    }
+
+    @SaCheckRole(value = RoleType.TEACHER.code)
+    @PostMapping("/teacherEdit")
+    @ApiOperation(value = "老师编辑自身信息")
+    public Result teacherEdit(@RequestBody TeacherEditReqVO reqVO){
+        return authService.teacherEdit(reqVO);
+    }
+
+
 }

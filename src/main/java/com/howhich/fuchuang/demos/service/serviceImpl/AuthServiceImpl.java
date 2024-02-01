@@ -1,12 +1,10 @@
 package com.howhich.fuchuang.demos.service.serviceImpl;
 
-import cn.dev33.satoken.stp.StpInterface;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.howhich.fuchuang.demos.Utils.exception.AssertUtils;
 import com.howhich.fuchuang.demos.Utils.exception.ExceptionsEnums;
 import com.howhich.fuchuang.demos.constant.Result;
@@ -14,16 +12,16 @@ import com.howhich.fuchuang.demos.constant.RoleType;
 import com.howhich.fuchuang.demos.constant.UserStatus;
 import com.howhich.fuchuang.demos.entity.Base.Clazz;
 import com.howhich.fuchuang.demos.entity.Base.Student;
+import com.howhich.fuchuang.demos.entity.Base.Teacher;
 import com.howhich.fuchuang.demos.entity.req.*;
-import com.howhich.fuchuang.demos.entity.resp.GetAllClassRespVO;
-import com.howhich.fuchuang.demos.entity.resp.GetAllStudentsByClassIdRespVO;
-import com.howhich.fuchuang.demos.entity.resp.GetUsersRespVO;
+import com.howhich.fuchuang.demos.entity.resp.*;
 import com.howhich.fuchuang.demos.entity.Base.User;
 import com.howhich.fuchuang.demos.mapper.AuthMapper;
 import com.howhich.fuchuang.demos.mapper.UsersInfoMapper;
 import com.howhich.fuchuang.demos.service.AuthService;
 import com.howhich.fuchuang.demos.service.ClassService;
 import com.howhich.fuchuang.demos.service.StudentService;
+import com.howhich.fuchuang.demos.service.TeacherService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +29,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +44,9 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     private RedisTemplate redisTemplate;
     @Autowired
     private ClassService classService;
+    @Resource
+    private TeacherService teacherService;
+
 
     @Override
     public Result<GetUsersRespVO> page(UsersInfoParam usersInfoParam) {
@@ -83,29 +85,9 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
         return Result.success("添加成功");
     }
 
-    @Override
-    public Result edit(EditStudentReqVO reqVO) {
-        LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        long id = StpUtil.getLoginIdAsLong();
-        lambdaQueryWrapper.eq(User::getId,id);
-        User user = new User();
-        user.setPassword(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()));
-        this.update(user, lambdaQueryWrapper);
-
-
-        Student student = new Student();
-        student.setName(reqVO.getName());
-        student.setId(id);
-        studentService.updateById(student);
-        return Result.success("修改成功");
-    }
 
     @Override
-    public Result resetUsers(List<UsersInfoParam> usersInfoParamList) {
-        List<Long> ids = new ArrayList<>();
-        usersInfoParamList.forEach(usersInfoParam -> {
-            ids.add(usersInfoParam.getId());
-        });
+    public Result resetUsers(List<Long> ids) {
         List<User> users = new ArrayList<>();
         ids.forEach(id -> {
             User user = this.getById(id);
@@ -116,75 +98,76 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
         return Result.success("重置成功，一共重置"+ users.size()+"条");
     }
 
-    @Override
-    public Result editSelf(User user) {
-        LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(User::getId,user.getId());
-        user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
-        this.update(user, lambdaQueryWrapper);
-        return Result.success("修改成功");
-    }
 
     @Override
-    public Result registry(User user) {
-        User user1 = User.builder()
-                .role(user.getRole())
-                .status(UserStatus.YES.code)
-                .username(user.getUsername())
-                .password(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()))
-                .build();
-        this.save(user1);
-        user1 = this.getOne(new LambdaQueryWrapper<User>().orderByDesc(User::getCreateTime)
+    public Result registry(RegistryUserReqVO reqVO) {
+        User user = new User();
+        BeanUtils.copyProperties(reqVO,user);
+        user.setStatus(UserStatus.YES.code);
+        user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
+
+        this.save(user);
+        user = this.getOne(new LambdaQueryWrapper<User>().orderByDesc(User::getCreateTime)
                 .last("limit 1"));
-        if(user1.getRole().equals(RoleType.STUDENT.code)){
+        if(user.getRole().equals(RoleType.STUDENT.code)){
             Student student = Student.builder()
-                    .Id(user1.getId())
+                    .id(user.getId())
                     .build();
             studentService.save(student);
         }
+        else if(user.getRole().equals(RoleType.TEACHER.code)){
+            Teacher teacher = Teacher.builder()
+                    .id(user.getId())
+                    .build();
+            teacherService.save(teacher);
+        }
+
         return Result.success("注册成功");
     }
 
     @Override
     public Result<GetAllClassRespVO> getAllClasses(GetAllClassReqVO reqVO) {
         List<Clazz> clazzes = new ArrayList<>();
-        clazzes = authMapper.getAllClasse(reqVO.getTeacherId());
 
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        Page<User> page = new Page(reqVO.getPage(),reqVO.getPageSize());
-
+        Page<Clazz> page = new Page(reqVO.getPage(),reqVO.getPageSize());
         PageHelper.startPage(reqVO.getPage(),reqVO.getPageSize());
-        page = this.page(page,queryWrapper);
 
         int count;
         LambdaQueryWrapper<Clazz> clazzLambdaQueryWrapper = new LambdaQueryWrapper<>();
         clazzLambdaQueryWrapper.eq(Clazz::getTeacherId,reqVO.getTeacherId());
-        //TODO 条件查询
-//        if(reqVO.getId()!=null){
-//            clazzLambdaQueryWrapper.eq(Clazz::getId,reqVO.getId());
-//        }
-//        if(reqVO.get)
-        count = (int) classService.count();
 
+        if(reqVO.getId()!=null && !reqVO.getId().equals("")){
+            clazzLambdaQueryWrapper.eq(Clazz::getId,reqVO.getId());
+        }
+        if(reqVO.getClassName()!=null && !reqVO.getClassName().equals("")){
+            clazzLambdaQueryWrapper.eq(Clazz::getClassName,reqVO.getClassName());
+        }
+
+        page = classService.page(page, clazzLambdaQueryWrapper);
+        clazzes = page.getRecords();
+        count = (int) classService.count(clazzLambdaQueryWrapper);
 
         GetAllClassRespVO respVO = new GetAllClassRespVO();
         respVO.setClassList(clazzes);
-        respVO.setTotal((int) count);
+        respVO.setTotal(count);
 
         return Result.success(respVO);
     }
 
     @Override
-    public Result<GetAllStudentsByClassIdRespVO> getAllStudentsByClassId(Long classId) {
+    public Result<GetAllStudentsByClassIdRespVO> getAllStudentsByClassId(GetAllStudentsByClassIdReqVO reqVO) {
+
+        Page<Student> page = new Page(reqVO.getPage(),reqVO.getPageSize());
+        PageHelper.startPage(reqVO.getPage(),reqVO.getPageSize());
 
         List<Student> students = new ArrayList<>();
         LambdaQueryWrapper<Student> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Student::getClassId,classId);
-        students = studentService.list(queryWrapper);
+        queryWrapper.eq(Student::getClassId, reqVO.getId());
 
-//        students = authMapper.getAllStudentsByClassId(classId);
+        page = studentService.page(page, queryWrapper);
+        students = page.getRecords();
         GetAllStudentsByClassIdRespVO respVO = new GetAllStudentsByClassIdRespVO();
-        int count = (int) studentService.count(new LambdaQueryWrapper<Student>().eq(Student::getClassId, classId));
+        int count = (int) studentService.count(new LambdaQueryWrapper<Student>().eq(Student::getClassId, reqVO.getId()));
         respVO.setStudentList(students);
         respVO.setTotal(count);
         return Result.success(respVO);
@@ -192,19 +175,24 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 
     @Override
     public Result bindStudentById(BindStudentReqVO reqVO) {
+        Long classId = reqVO.getClassId();
+        List<String> studentNums = reqVO.getStudentNums();
+        for (String studentNum : studentNums) {
+            Student student = studentService.getOne(new LambdaQueryWrapper<Student>().eq(Student::getStudentNum,studentNum));
+            AssertUtils.isFalse(ObjectUtils.isNotEmpty(student), ExceptionsEnums.UserEX.ACCOUNT_NOT_FIND);
+            student.setClassId(classId);
+            studentService.update(student,new LambdaQueryWrapper<Student>().eq(Student::getId,student.getId()));
 
-        String studentNum = reqVO.getStudentNum();
-        Student student = studentService.getOne(new LambdaQueryWrapper<Student>().eq(Student::getStudentNum,reqVO.getStudentNum()));
-//        Student student = authMapper.getStudentByStudentNum(studentNum);
-        AssertUtils.isFalse(ObjectUtils.isNotEmpty(student), ExceptionsEnums.UserEX.ACCOUNT_NOT_FIND);
-        authMapper.bindStudentById(reqVO);
+        }
         return Result.success("绑定成功");
     }
 
     @Override
-    public Result registeStudent(RegisteStudentReqVO reqVO) {
+    public Result registeStudent(TeacherRegisteReqVO reqVO) {
+        //通过学号判断是否存在该学生
         Student student1 = studentService.getOne(new LambdaQueryWrapper<Student>().eq(Student::getStudentNum, reqVO.getStudentNum()));
         AssertUtils.isFalse(ObjectUtils.isEmpty(student1),ExceptionsEnums.UserEX.USER_HAVE);
+
         User user = User.builder()
                 .status(UserStatus.YES.code)
                 .username((reqVO.getStudentNum()))
@@ -214,17 +202,18 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 
         this.save(user);
         user = this.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername,reqVO.getStudentNum()));
-        System.out.println(user.getId()+"!!!!!");
+
         Student student = Student.builder()
                 .studentNum((reqVO.getStudentNum()))
                 .name(reqVO.getName())
-                .Id(user.getId())
+                .id(user.getId())
+                .changeable(0)
                 .build();
         studentService.save(student);
         return Result.success("注册成功");
     }
     @Override
-    public Result registy(RegisteStudentReqVO reqVO) {
+    public Result studentEdit(StudentEditReqVO reqVO) {
         long id = StpUtil.getLoginIdAsLong();
         User user = User.builder()
                 .role(RoleType.STUDENT.code)
@@ -234,31 +223,58 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
                 .id(id)
                 .build();
         this.updateById(user);
-        this.getOne(new LambdaQueryWrapper<User>().orderByDesc(User::getCreateTime).last("limit 1"));
         Student student = Student.builder()
                 .studentNum(reqVO.getStudentNum())
                 .name(reqVO.getName())
-                .changable(0)
-                .Id(id)
+                .changeable(0)
+                .id(id)
                 .build();
         studentService.updateById(student);
-        return Result.success("学生注册成功");
+        return Result.success("学生编辑成功");
     }
-    public Result update(RegisteStudentReqVO reqVO) {
+    @Override
+    public Result teacherEdit(TeacherEditReqVO reqVO) {
+        long id = StpUtil.getLoginIdAsLong();
         User user = User.builder()
-                .role(RoleType.STUDENT.code)
+                .username(reqVO.getUsername())
                 .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))
-                .status(UserStatus.YES.code)
-                .username((String) redisTemplate.opsForValue().get("username"))
+                .id(id)
                 .build();
-        this.save(user);
-        this.getOne(new LambdaQueryWrapper<User>().orderByDesc(User::getCreateTime).last("limit 1"));
-        Student student = Student.builder()
-                .studentNum(reqVO.getStudentNum())
+
+        this.updateById(user);
+        Teacher teacher = Teacher.builder()
                 .name(reqVO.getName())
-                .changable(0)
+                .id(id)
                 .build();
-        studentService.save(student);
-        return Result.success("学生注册成功");
+        teacherService.updateById(teacher);
+        return Result.success("教师修改成功");
     }
+
+    @Override
+    public Result<GetStudentInfoRespVO> getStudentInfo() {
+        long id = StpUtil.getLoginIdAsLong();
+        Student student = studentService.getOne(new LambdaQueryWrapper<Student>().eq(Student::getId,id));
+        User user = this.getOne(new LambdaQueryWrapper<User>().eq(User::getId, id));
+        GetStudentInfoRespVO resp = GetStudentInfoRespVO.builder()
+                .changeable(student.getChangeable())
+                .StudentNum(student.getStudentNum())
+                .name(student.getName())
+                .password(user.getPassword())
+                .build();
+        return Result.success(resp);
+    }
+
+    @Override
+    public Result<GetTeacherInfoRespVO> getTeacherInfo() {
+        long id = StpUtil.getLoginIdAsLong();
+        Teacher teacher = teacherService.getOne(new LambdaQueryWrapper<Teacher>().eq(Teacher::getId, id));
+        User user = this.getOne(new LambdaQueryWrapper<User>().eq(User::getId, id));
+        GetTeacherInfoRespVO respVO = GetTeacherInfoRespVO.builder()
+                .name(teacher.getName())
+                .password(user.getPassword())
+                .build();
+        return Result.success(respVO);
+    }
+
+
 }

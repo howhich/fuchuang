@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Student {
+public class Student extends BaseEntity{
     @ApiModelProperty(notes = "用户ID")
-    private Long Id;
+    private Long id;
     @ApiModelProperty(notes = "班级ID")
     private Long classId;
     @ApiModelProperty(notes = "学号")
@@ -21,6 +21,7 @@ public class Student {
     @ApiModelProperty(notes = "学生姓名")
     private String name;
     @ApiModelProperty(notes = "是否可以更改")
-    private int changable;
+    private int changeable;
+
 
 }

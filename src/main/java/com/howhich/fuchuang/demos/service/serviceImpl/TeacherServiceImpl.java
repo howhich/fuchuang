@@ -2,12 +2,15 @@ package com.howhich.fuchuang.demos.service.serviceImpl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.howhich.fuchuang.demos.entity.Base.Student;
+import com.howhich.fuchuang.demos.entity.Base.Teacher;
 import com.howhich.fuchuang.demos.mapper.StudentMapper;
+import com.howhich.fuchuang.demos.mapper.TeacherMapper;
 import com.howhich.fuchuang.demos.service.StudentService;
+import com.howhich.fuchuang.demos.service.TeacherService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> implements StudentService {
+public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher> implements TeacherService {
 //    @Autowired
 //    private AuthService authService;
 //    @Autowired

@@ -10,19 +10,22 @@ import com.howhich.fuchuang.demos.entity.req.ImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
 import com.howhich.fuchuang.demos.mapper.RecordMapper;
 import com.howhich.fuchuang.demos.service.RecordsService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.annotation.Resource;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implements RecordsService {
+    @Value("${photo.BaseURL}")
+    private String BaseURL;
+    @Value("${file.separator}")
+    private String separator;
     @Override
     public Result<ImportRecordsRespVO> page(ImportRecordsReqVO reqVO) {
         LambdaQueryWrapper queryWrapper = new LambdaQueryWrapper<Record>();
@@ -72,7 +75,10 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
 
     @Override
     public Result importBatchPhotp(List<MultipartFile> fileList) {
-        String basicURL = "src/main/resources/static/";
+        String dirName = "Judge" + UUID.randomUUID().toString().replace("-","");
+        String basicURL = BaseURL + dirName;
+        File dir = new File(basicURL);
+        dir.mkdir();
         List<Record> records = new ArrayList<>();
         fileList.forEach(file -> {
             FileInputStream fileInputStream;
@@ -92,7 +98,7 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
             records.add(record);
 
             try {
-                FileOutputStream fileOutputStream = new FileOutputStream(basicURL + detaiURL);
+                FileOutputStream fileOutputStream = new FileOutputStream(basicURL + separator+ detaiURL);
                 byte[] buffer = new byte[1024];
                 int len = 0;
                 while ((len = fileInputStream.read(buffer))!=-1){

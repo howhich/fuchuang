@@ -11,8 +11,6 @@ public class GetAllClassReqVO {
     private Long teacherId;
     @ApiModelProperty(notes = "班级名称")
     private String className;
-    @ApiModelProperty(value = "YES",notes = "班级状态 NO YES")
-    private String status;
     private Integer page;
     private Integer pageSize;
 }
