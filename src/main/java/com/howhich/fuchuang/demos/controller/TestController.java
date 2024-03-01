@@ -34,6 +34,12 @@ public class TestController {
     @Resource
     private RecordsService recordsService;
 
+    @GetMapping("/normal")
+    @ApiOperation("测试接口")
+    public String normal(){
+        return "hello,fuchuang";
+    }
+
     @GetMapping("/hello")
     @ApiOperation("token测试")
     public String test1(){
