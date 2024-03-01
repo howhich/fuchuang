@@ -37,8 +37,9 @@ public class TestController {
     @GetMapping("/normal")
     @ApiOperation("测试接口")
     public String normal(){
-        return "hello,fuchuang";
+        return "hello,fufuchuangchuang";
     }
+
 
     @GetMapping("/hello")
     @ApiOperation("token测试")
