@@ -6,15 +6,17 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.entity.Base.Record;
+import com.howhich.fuchuang.demos.entity.req.ImportPaperResultReqVO;
+import com.howhich.fuchuang.demos.entity.req.GetImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.ImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
 import com.howhich.fuchuang.demos.mapper.RecordMapper;
 import com.howhich.fuchuang.demos.service.RecordsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +28,12 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     private String BaseURL;
     @Value("${file.separator}")
     private String separator;
+    @Value("${file.paperurl}")
+    private String paperurl;
+    @Autowired
+    private RecordMapper recordMapper;
     @Override
-    public Result<ImportRecordsRespVO> page(ImportRecordsReqVO reqVO) {
+    public Result<ImportRecordsRespVO> page(GetImportRecordsReqVO reqVO) {
         LambdaQueryWrapper queryWrapper = new LambdaQueryWrapper<Record>();
         Page<Record> page = new Page<>(reqVO.getPage(),reqVO.getPageSize());
         page = this.page(page,queryWrapper);
@@ -44,37 +50,39 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     }
 
     @Override
-    public Result importSinglePhoto(MultipartFile file) throws IOException {
+    public Result<String> importSinglePhoto(ImportPaperResultReqVO reqVO) throws IOException {
+
+        MultipartFile file =  reqVO.getFile();
         FileInputStream fileInputStream = (FileInputStream) file.getInputStream();
 
-        UUID uuid = UUID.randomUUID();
-        String detaiURL = uuid.toString();
-        detaiURL = detaiURL.replace("-","") + ".jpg";
+
+        String  detailURL = String.valueOf(reqVO.getRecordId());
+        detailURL = detailURL.replace("-","") + ".jpg";
 
         Record record = new Record();
-        record.setUrl(detaiURL);
+        record.setUrl(detailURL);
         record.setRecordName(file.getOriginalFilename());
+
         this.save(record);
-// TODO 不需要存到数据库里面 数据库只存图片URI即可
-        String basicURL = "src/main/resources/static/";
+//      返回URL
+        String basicURL = paperurl;
         FileOutputStream fileOutputStream = null;
         try {
-            fileOutputStream = new FileOutputStream(basicURL + detaiURL);
+            fileOutputStream = new FileOutputStream(basicURL + detailURL);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
-
         byte[] buffer = new byte[1024];
         int len = 0;
         while((len = fileInputStream.read(buffer)) != -1){
             fileOutputStream.write(buffer, 0, len);
         }
         fileOutputStream.close();
-        return Result.success("完成上传");
+        return Result.success(basicURL);
     }
 
     @Override
-    public Result importBatchPhotp(List<MultipartFile> fileList) {
+    public Result importBatchPhoto(List<MultipartFile> fileList) {
         String dirName = "Judge" + UUID.randomUUID().toString().replace("-","");
         String basicURL = BaseURL + dirName;
         File dir = new File(basicURL);
@@ -115,5 +123,15 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
         this.saveBatch(records);
         int count = records.size();
         return Result.success("完成上传,共计图片数量："+count);
+    }
+
+    @Override
+    public Result importRecords(ImportRecordsReqVO reqVO) {
+        String fileName = reqVO.getFileName();
+        Record record = new Record();
+        record.setRecordName(fileName);
+        record.setStatus("JUDGING");
+        this.save(record);
+        return Result.success("创建考试成功");
     }
 }

@@ -1,13 +1,9 @@
 package com.howhich.fuchuang.demos.controller;
 
 import com.howhich.fuchuang.demos.constant.Result;
-import com.howhich.fuchuang.demos.entity.req.ImportRecordsReqVO;
-import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
 import com.howhich.fuchuang.demos.entity.resp.PaperDetailRespVO;
 import com.howhich.fuchuang.demos.service.InTimeService;
-import com.howhich.fuchuang.demos.service.RecordsService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
