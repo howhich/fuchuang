@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/paperDetail")
-@Api(tags = "具体试卷detail")
+@Api(tags = "试卷detail")
 public class PaperDetailController {
     @Autowired
     private PaperDetailService paperDetailService;

@@ -23,7 +23,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/test")
-@Api(tags = "测试接口")
+@Api(tags = "测试test")
 @Slf4j
 //@SaCheckLogin
 public class TestController {

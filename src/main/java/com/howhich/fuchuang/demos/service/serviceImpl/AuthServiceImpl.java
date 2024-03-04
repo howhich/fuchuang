@@ -169,7 +169,7 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
         page = studentService.page(page, queryWrapper);
         students = page.getRecords();
         GetAllStudentsRespVO respVO = new GetAllStudentsRespVO();
-        int count = (int) studentService.count(new LambdaQueryWrapper<Student>().eq(Student::getTeacherId, reqVO.getId()));
+        int count = (int) studentService.count(new LambdaQueryWrapper<Student>().eq(Student::getTeacherId, loginIdAsLong));
         respVO.setStudentList(students);
         respVO.setTotal(count);
         return Result.success(respVO);

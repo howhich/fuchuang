@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
-@Api(tags = "管理认证")
+@Api(tags = "管理auth")
 public class AuthController {
     private final AuthService authService;
 
@@ -50,12 +50,12 @@ public class AuthController {
     public Result registeStudent(@RequestBody TeacherRegisteReqVO reqVO){
         return authService.registeStudent(reqVO);
     }
-    @SaCheckRole(value = RoleType.TEACHER.code)
-    @PostMapping("/getUsersInfo")
-    @ApiOperation(value = "管理员获取所有用户信息")
-    public Result<GetUsersRespVO> getUsers(@RequestBody UsersInfoReqVO usersInfoReqVO){
-        return authService.page(usersInfoReqVO);
-    }
+//    @SaCheckRole(value = RoleType.TEACHER.code)
+//    @PostMapping("/getUsersInfo")
+//    @ApiOperation(value = "管理员获取所有用户信息")
+//    public Result<GetUsersRespVO> getUsers(@RequestBody UsersInfoReqVO usersInfoReqVO){
+//        return authService.page(usersInfoReqVO);
+//    }
 
     @PostMapping("/deleteUser")
     @ApiOperation(value = "老师删除用户(默认为批量删除 请传入List)")
@@ -65,7 +65,7 @@ public class AuthController {
 
 
     @PostMapping("/registry")
-    @ApiOperation(value = "用户注册(选择学生or老师)")
+    @ApiOperation(value = "老师注册")
     public Result registryUser(@RequestBody RegistryUserReqVO reqVO){
         return authService.registry(reqVO);
     }

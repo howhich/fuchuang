@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/login")
-@Api(tags = "登录")
+@Api(tags = "登录login")
 public class LoginController {
     @Autowired
     private LoginService loginService;

@@ -34,6 +34,6 @@ class FuchuangApplicationTests {
     }
     @Test
     void test1(){
-        System.out.printf(TimeUtil.getLastWorkDay());
+        System.out.printf(TimeUtil.getLastWorkDayAsDay());
     }
 }

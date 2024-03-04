@@ -5,11 +5,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.howhich.fuchuang.demos.constant.Result;
+import com.howhich.fuchuang.demos.entity.Base.PaperDetail;
+import com.howhich.fuchuang.demos.entity.Base.PaperResult;
 import com.howhich.fuchuang.demos.entity.Base.Record;
 import com.howhich.fuchuang.demos.entity.req.ImportPaperResultReqVO;
 import com.howhich.fuchuang.demos.entity.req.GetImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.ImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
+import com.howhich.fuchuang.demos.mapper.PaperResultMapper;
 import com.howhich.fuchuang.demos.mapper.RecordMapper;
 import com.howhich.fuchuang.demos.service.RecordsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +35,8 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     private String paperurl;
     @Autowired
     private RecordMapper recordMapper;
+    @Autowired
+    private PaperResultMapper paperResultMapper;
     @Override
     public Result<ImportRecordsRespVO> page(GetImportRecordsReqVO reqVO) {
         LambdaQueryWrapper queryWrapper = new LambdaQueryWrapper<Record>();
@@ -55,15 +60,18 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
         MultipartFile file =  reqVO.getFile();
         FileInputStream fileInputStream = (FileInputStream) file.getInputStream();
 
-
         String  detailURL = String.valueOf(reqVO.getRecordId());
         detailURL = detailURL.replace("-","") + ".jpg";
 
-        Record record = new Record();
-        record.setUrl(detailURL);
-        record.setRecordName(file.getOriginalFilename());
 
-        this.save(record);
+        String filename = file.getOriginalFilename();
+
+        PaperResult paperResult = new PaperResult();
+        paperResult.setRecordId(reqVO.getRecordId());
+        paperResult.setPaperName(filename);
+//        paperResult.setStatus();
+
+        paperResultMapper.insert(paperResult);
 //      返回URL
         String basicURL = paperurl;
         FileOutputStream fileOutputStream = null;

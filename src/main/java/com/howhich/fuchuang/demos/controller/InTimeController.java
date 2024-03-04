@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/inTime")
-@Api(tags = "实时分析")
+@Api(tags = "实时inTime")
 public class InTimeController {
 
     @Resource

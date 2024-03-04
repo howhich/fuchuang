@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/student")
-@Api(tags = "学生管理")
+@Api(tags = "学生student")
 public class StudentController {
     @Autowired
     private StudentService studentService;
@@ -21,6 +21,6 @@ public class StudentController {
     @ApiOperation(value = "学生自己注册")
     public Result registry(@RequestBody StudentEditReqVO reqVO){
 
-        return Result.success();
+        return studentService.registry(reqVO);
     }
 }

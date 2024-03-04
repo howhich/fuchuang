@@ -1,5 +1,6 @@
 package com.howhich.fuchuang.demos.entity.Base;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PaperResult {
+public class PaperResult extends BaseDeleteEntity{
     @ApiModelProperty(notes = "id")
     private Long id;
     @ApiModelProperty(notes = "导入记录id")
@@ -21,7 +22,7 @@ public class PaperResult {
     private String status;
     @ApiModelProperty(notes = "(定位试卷名称)")
     private String paperName;
-    @ApiModelProperty(notes = "创建时间")
-    private String createTime;
-    private String deleted;
+    @ApiModelProperty(notes = "分组id(两张卷子图片属于某一个人)")
+    private Long resultGroupId;
+
 }

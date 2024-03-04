@@ -1,6 +1,7 @@
 package com.howhich.fuchuang.demos.service.serviceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.howhich.fuchuang.demos.Utils.exception.DateUtil;
 import com.howhich.fuchuang.demos.Utils.exception.TimeUtil;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.constant.StatusType;
@@ -64,7 +65,7 @@ public class InTimeServiceImpl implements InTimeService {
         PaperResult paperResult = new PaperResult();
         paperResult.setRecordId(id);
         paperResult.setPaperName("实时评阅:"+uuidForRecord);
-        paperResult.setCreateTime(TimeUtil.getNowWithSec());
+//        paperResult.setCreateTime(DateUtil.getTimeWithSec());
         paperResultService.save(paperResult);
         PaperResult result = paperResultService.getOne(new LambdaQueryWrapper<PaperResult>()
                 .orderByDesc(PaperResult::getCreateTime).last("limit 1"));
