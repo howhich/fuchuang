@@ -1,5 +1,7 @@
 package com.howhich.fuchuang.demos.entity.Base;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.howhich.fuchuang.demos.entity.Base.BaseDeleteEntity;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -13,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class User extends BaseDeleteEntity {
     @ApiModelProperty(notes = "id")
+    @TableId(value = "id",type = IdType.AUTO)
     private Long id;
     @ApiModelProperty(notes = "用户名")
     private String username;

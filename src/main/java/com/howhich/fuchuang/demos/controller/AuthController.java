@@ -1,7 +1,6 @@
 package com.howhich.fuchuang.demos.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
-import cn.dev33.satoken.stp.StpUtil;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.constant.RoleType;
 import com.howhich.fuchuang.demos.entity.req.*;
@@ -25,18 +24,18 @@ public class AuthController {
         this.authService = authService;
     }
 
+//    @SaCheckRole(value = RoleType.TEACHER.code)
+//    @PostMapping("/getAllClasses")
+//    @ApiOperation(value = "老师获取当前所有班级")
+//    public Result<GetAllClassRespVO> getAllClasses(@RequestBody GetAllClassReqVO reqVO){
+//        long id = StpUtil.getLoginIdAsLong();
+//        reqVO.setTeacherId(id);
+//        return authService.getAllClasses(reqVO);
+//    }
     @SaCheckRole(value = RoleType.TEACHER.code)
-    @PostMapping("/getAllClasses")
-    @ApiOperation(value = "老师获取当前所有班级")
-    public Result<GetAllClassRespVO> getAllClasses(@RequestBody GetAllClassReqVO reqVO){
-        long id = StpUtil.getLoginIdAsLong();
-        reqVO.setTeacherId(id);
-        return authService.getAllClasses(reqVO);
-    }
-    @SaCheckRole(value = RoleType.TEACHER.code)
-    @PostMapping("/getAllStudentsByClassId")
-    @ApiOperation(value = "老师通过班级ID获取所有学生")
-    public Result<GetAllStudentsByClassIdRespVO> getAllStudentsByClassId(@RequestBody GetAllStudentsByClassIdReqVO reqVO){
+    @PostMapping("/getAllStudents")
+    @ApiOperation(value = "老师获取自己所有学生")
+    public Result<GetAllStudentsRespVO> getAllStudentsByClassId(@RequestBody GetAllStudentsReqVO reqVO){
         return authService.getAllStudentsByClassId(reqVO);
     }
     @SaCheckRole(value = RoleType.TEACHER.code)
@@ -54,14 +53,14 @@ public class AuthController {
     @SaCheckRole(value = RoleType.TEACHER.code)
     @PostMapping("/getUsersInfo")
     @ApiOperation(value = "管理员获取所有用户信息")
-    public Result<GetUsersRespVO> getUsers(@RequestBody UsersInfoParam usersInfoParam){
-        return authService.page(usersInfoParam);
+    public Result<GetUsersRespVO> getUsers(@RequestBody UsersInfoReqVO usersInfoReqVO){
+        return authService.page(usersInfoReqVO);
     }
 
     @PostMapping("/deleteUser")
     @ApiOperation(value = "老师删除用户(默认为批量删除 请传入List)")
-    public Result deleteUsers( @RequestBody List<UsersInfoParam> usersInfoParamList){
-        return authService.delete(usersInfoParamList);
+    public Result deleteUsers( @RequestBody List<UsersInfoReqVO> usersInfoReqVOList){
+        return authService.delete(usersInfoReqVOList);
     }
 
 

@@ -1,13 +1,16 @@
 package com.howhich.fuchuang;
 
+import com.howhich.fuchuang.demos.Utils.exception.TimeUtil;
 import com.howhich.fuchuang.demos.entity.Base.User;
 import com.howhich.fuchuang.demos.mapper.UsersInfoMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 import java.util.List;
 
 @SpringBootTest
@@ -28,5 +31,9 @@ class FuchuangApplicationTests {
     void test(){
         List<User> users = usersInfoMapper.selectList(null);
         users.forEach(user -> System.out.println(user.getUsername() +":" + user.getRole()));
+    }
+    @Test
+    void test1(){
+        System.out.printf(TimeUtil.getLastWorkDay());
     }
 }

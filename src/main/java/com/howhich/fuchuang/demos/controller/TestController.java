@@ -5,15 +5,13 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.constant.RoleType;
 import com.howhich.fuchuang.demos.entity.Base.Record;
-import com.howhich.fuchuang.demos.entity.req.UsersInfoParam;
+import com.howhich.fuchuang.demos.entity.req.UsersInfoReqVO;
 import com.howhich.fuchuang.demos.entity.resp.GetUsersRespVO;
 import com.howhich.fuchuang.demos.service.AuthService;
 import com.howhich.fuchuang.demos.service.RecordsService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,8 +60,8 @@ public class TestController {
 
     @GetMapping("/getUsers")
     @ApiOperation("获取所有用户信息")
-    public Result<GetUsersRespVO> getUsers(UsersInfoParam usersInfoParam){
-        return authService.page(usersInfoParam);
+    public Result<GetUsersRespVO> getUsers(UsersInfoReqVO usersInfoReqVO){
+        return authService.page(usersInfoReqVO);
     }
 
     @PostMapping("/photo")

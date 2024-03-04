@@ -5,14 +5,15 @@ import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.entity.req.*;
 import com.howhich.fuchuang.demos.entity.resp.*;
 import com.howhich.fuchuang.demos.entity.Base.User;
+import com.howhich.fuchuang.demos.entity.req.GetAllStudentsReqVO;
 
 import java.util.List;
 
 public interface AuthService extends IService<User> {
 
-    Result<GetUsersRespVO> page(UsersInfoParam usersInfoParam);
+    Result<GetUsersRespVO> page(UsersInfoReqVO usersInfoReqVO);
 
-    Result delete(List<UsersInfoParam> usersInfoParamList);
+    Result delete(List<UsersInfoReqVO> usersInfoReqVOList);
 
     Result add(User user);
 
@@ -22,7 +23,7 @@ public interface AuthService extends IService<User> {
 
     Result<GetAllClassRespVO> getAllClasses(GetAllClassReqVO reqVO);
 
-    Result<GetAllStudentsByClassIdRespVO> getAllStudentsByClassId(GetAllStudentsByClassIdReqVO reqVO);
+    Result<GetAllStudentsRespVO> getAllStudentsByClassId(GetAllStudentsReqVO reqVO);
 
     Result bindStudentById(BindStudentReqVO reqVO);
 

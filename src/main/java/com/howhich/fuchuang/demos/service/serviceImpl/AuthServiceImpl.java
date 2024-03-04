@@ -49,11 +49,11 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 
 
     @Override
-    public Result<GetUsersRespVO> page(UsersInfoParam usersInfoParam) {
+    public Result<GetUsersRespVO> page(UsersInfoReqVO usersInfoReqVO) {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        Page<User> page = new Page(usersInfoParam.getPage(),usersInfoParam.getPageSize());
+        Page<User> page = new Page(usersInfoReqVO.getPage(), usersInfoReqVO.getPageSize());
 
-        PageHelper.startPage(usersInfoParam.getPage(),usersInfoParam.getPageSize());
+        PageHelper.startPage(usersInfoReqVO.getPage(), usersInfoReqVO.getPageSize());
         page = this.page(page,queryWrapper);
 
         long count = this.count();
@@ -67,10 +67,10 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     }
 
     @Override
-    public Result delete(List<UsersInfoParam> usersInfoParamList) {
+    public Result delete(List<UsersInfoReqVO> usersInfoReqVOList) {
         List<Long> ids = new ArrayList<>();
-        usersInfoParamList.forEach(usersInfoParam -> {
-            ids.add(usersInfoParam.getId());
+        usersInfoReqVOList.forEach(usersInfoReqVO -> {
+            ids.add(usersInfoReqVO.getId());
         });
         this.removeByIds(ids);
         return Result.success("删除成功");
@@ -155,19 +155,21 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     }
 
     @Override
-    public Result<GetAllStudentsByClassIdRespVO> getAllStudentsByClassId(GetAllStudentsByClassIdReqVO reqVO) {
+    public Result<GetAllStudentsRespVO> getAllStudentsByClassId(GetAllStudentsReqVO reqVO) {
+        long loginIdAsLong = StpUtil.getLoginIdAsLong();
+//        System.out.printf("id:"+String.valueOf(loginIdAsLong));
 
         Page<Student> page = new Page(reqVO.getPage(),reqVO.getPageSize());
         PageHelper.startPage(reqVO.getPage(),reqVO.getPageSize());
 
         List<Student> students = new ArrayList<>();
         LambdaQueryWrapper<Student> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Student::getClassId, reqVO.getId());
+        queryWrapper.eq(Student::getTeacherId, loginIdAsLong);
 
         page = studentService.page(page, queryWrapper);
         students = page.getRecords();
-        GetAllStudentsByClassIdRespVO respVO = new GetAllStudentsByClassIdRespVO();
-        int count = (int) studentService.count(new LambdaQueryWrapper<Student>().eq(Student::getClassId, reqVO.getId()));
+        GetAllStudentsRespVO respVO = new GetAllStudentsRespVO();
+        int count = (int) studentService.count(new LambdaQueryWrapper<Student>().eq(Student::getTeacherId, reqVO.getId()));
         respVO.setStudentList(students);
         respVO.setTotal(count);
         return Result.success(respVO);
@@ -175,12 +177,13 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 
     @Override
     public Result bindStudentById(BindStudentReqVO reqVO) {
-        Long classId = reqVO.getClassId();
+        long loginId = StpUtil.getLoginIdAsLong();
+//        Long classId = loginIdAsLong;
         List<String> studentNums = reqVO.getStudentNums();
         for (String studentNum : studentNums) {
             Student student = studentService.getOne(new LambdaQueryWrapper<Student>().eq(Student::getStudentNum,studentNum));
             AssertUtils.isFalse(ObjectUtils.isNotEmpty(student), ExceptionsEnums.UserEX.ACCOUNT_NOT_FIND);
-            student.setClassId(classId);
+            student.setTeacherId(loginId);
             studentService.update(student,new LambdaQueryWrapper<Student>().eq(Student::getId,student.getId()));
 
         }

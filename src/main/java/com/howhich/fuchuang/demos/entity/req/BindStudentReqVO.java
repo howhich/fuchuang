@@ -9,8 +9,6 @@ import java.util.List;
 
 @Data
 public class BindStudentReqVO {
-    @ApiModelProperty(notes = "班级ID")
-    private Long classId;
     @ApiModelProperty(notes = "学号列表")
     private List<String> studentNums;
 }
