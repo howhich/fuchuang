@@ -2,8 +2,10 @@ package com.howhich.fuchuang.demos.controller;
 
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.entity.req.GetImportRecordsReqVO;
+import com.howhich.fuchuang.demos.entity.req.GetStudentRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.ImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
+import com.howhich.fuchuang.demos.entity.resp.StudentRecordsRespVO;
 import com.howhich.fuchuang.demos.service.RecordsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,4 +33,6 @@ public class RecordController {
     public Result importRecords(@RequestBody ImportRecordsReqVO reqVO){
         return recordsService.importRecords(reqVO);
     }
+
+
 }

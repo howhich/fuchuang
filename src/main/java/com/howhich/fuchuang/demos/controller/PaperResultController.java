@@ -3,8 +3,10 @@ package com.howhich.fuchuang.demos.controller;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.entity.Base.PaperResult;
 import com.howhich.fuchuang.demos.entity.req.GetPaperResultByIdReqVO;
+import com.howhich.fuchuang.demos.entity.req.GetStudentPaperResultReqVO;
 import com.howhich.fuchuang.demos.entity.req.ImportPaperResultReqVO;
 import com.howhich.fuchuang.demos.entity.resp.GetPaperResultByIdRespVO;
+import com.howhich.fuchuang.demos.entity.resp.GetStudentPaperResultRespVO;
 import com.howhich.fuchuang.demos.service.PaperResultService;
 import com.howhich.fuchuang.demos.service.RecordsService;
 import io.swagger.annotations.Api;
@@ -27,9 +29,9 @@ public class PaperResultController {
     private PaperResultService paperResultService;
 
     @PostMapping("/importPaper")
-    @ApiOperation(value = "导入单张图片(传入recordId和File)")
-    public Result<String> importSinglePhoto(ImportPaperResultReqVO reqVO) throws IOException {
-        return recordsService.importSinglePhoto(reqVO);
+    @ApiOperation(value = "导入单张图片")
+    public Result<String> importSinglePhoto(MultipartFile file) throws IOException {
+        return recordsService.importSinglePhoto(file);
     }
 //    @PostMapping("/importBatchPhoto")
 //    @ApiOperation(value = "导入多张图片")
@@ -37,9 +39,14 @@ public class PaperResultController {
 //        return recordsService.importBatchPhoto(fileList);
 //    }
     @PostMapping("/getPaperResultsByRecordId")
-    @ApiOperation(value = "通过导入记录获取试卷评阅结果")
+    @ApiOperation(value = "老师通过考试记录id获取试卷评阅结果")
     public Result<GetPaperResultByIdRespVO> getPaperResultsByRecordId(@RequestBody GetPaperResultByIdReqVO reqVO){
         return paperResultService.page(reqVO);
     }
 
+    @PostMapping("/getStudentPaperResult")
+    @ApiOperation(value = "学生获取自身试卷评阅结果")
+    public Result<GetStudentPaperResultRespVO> getStudentPaperResult(@RequestBody GetStudentPaperResultReqVO reqVO){
+        return paperResultService.getStudentPaperResult(reqVO);
+    }
 }

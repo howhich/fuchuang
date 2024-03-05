@@ -8,10 +8,12 @@ import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.entity.Base.PaperDetail;
 import com.howhich.fuchuang.demos.entity.Base.PaperResult;
 import com.howhich.fuchuang.demos.entity.Base.Record;
+import com.howhich.fuchuang.demos.entity.req.GetStudentRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.ImportPaperResultReqVO;
 import com.howhich.fuchuang.demos.entity.req.GetImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.ImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
+import com.howhich.fuchuang.demos.entity.resp.StudentRecordsRespVO;
 import com.howhich.fuchuang.demos.mapper.PaperResultMapper;
 import com.howhich.fuchuang.demos.mapper.RecordMapper;
 import com.howhich.fuchuang.demos.service.RecordsService;
@@ -33,6 +35,8 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     private String separator;
     @Value("${file.paperurl}")
     private String paperurl;
+    @Value("${file.pictureurl}")
+    private String pictureurl;
     @Autowired
     private RecordMapper recordMapper;
     @Autowired
@@ -46,7 +50,7 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
         PageHelper.startPage(reqVO.getPage(),reqVO.getPageSize());
         page = this.page(page,queryWrapper);
 
-        long count = this.count();
+        long count = this.count(queryWrapper);
 
         ImportRecordsRespVO respVO = new ImportRecordsRespVO();
         respVO.setList(page.getRecords());
@@ -55,28 +59,34 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     }
 
     @Override
-    public Result<String> importSinglePhoto(ImportPaperResultReqVO reqVO) throws IOException {
+    public Result<String> importSinglePhoto(MultipartFile file) throws IOException {
 
-        MultipartFile file =  reqVO.getFile();
         FileInputStream fileInputStream = (FileInputStream) file.getInputStream();
 
-        String  detailURL = String.valueOf(reqVO.getRecordId());
-        detailURL = detailURL.replace("-","") + ".jpg";
+//        String name = file.getName();//file
+        String filename = file.getOriginalFilename();//qq截图2024.png
 
+        String[] split = filename.split("\\.");
+        String first = split[0];
+        String last = split[split.length-1];
 
-        String filename = file.getOriginalFilename();
+        String[] s = filename.split("_");
+        String pictureType = s[0];
 
-        PaperResult paperResult = new PaperResult();
-        paperResult.setRecordId(reqVO.getRecordId());
-        paperResult.setPaperName(filename);
-//        paperResult.setStatus();
+        if(pictureType == "1"){
+            String studentNum = s[1];
+        } else if (pictureType == "2") {
+            String pageNum = s[s.length-1];
+        } else {
+            String pageNum = s[s.length-1];
+        }
 
-        paperResultMapper.insert(paperResult);
 //      返回URL
-        String basicURL = paperurl;
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        String basicURL = pictureurl + first + "_" + uuid +"."+last ;
         FileOutputStream fileOutputStream = null;
         try {
-            fileOutputStream = new FileOutputStream(basicURL + detailURL);
+            fileOutputStream = new FileOutputStream(basicURL);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -135,11 +145,35 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
 
     @Override
     public Result importRecords(ImportRecordsReqVO reqVO) {
-        String fileName = reqVO.getFileName();
+        List<String> fileNames = reqVO.getFileNames();
         Record record = new Record();
-        record.setRecordName(fileName);
+        record.setRecordName(reqVO.getRecordName());
         record.setStatus("JUDGING");
         this.save(record);
-        return Result.success("创建考试成功");
+        Long id = this.getOne(new LambdaQueryWrapper<Record>()
+                .orderByDesc(Record::getCreateTime)
+                .last("limit 1")).getId();
+        fileNames.forEach(fileName->{
+            PaperResult paperResult = new PaperResult();
+
+            String[] strings = fileName.split("_");
+            String pictureType = strings[0];
+            String studentNum = strings[1];
+            String pageNum = strings[2];
+
+            paperResult.setStatus("WAIT");
+            paperResult.setStudentNum(studentNum);
+            paperResult.setRecordId(id);
+            paperResult.setPaperName(fileName);
+            paperResultMapper.insert(paperResult);
+        });
+
+        return Result.success("创建考试成功,id:" + id);
+    }
+
+    @Override
+    public Result<StudentRecordsRespVO> getStudentRecords(GetStudentRecordsReqVO reqVO) {
+
+        return Result.success();
     }
 }

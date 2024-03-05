@@ -1,3 +1,19 @@
 file:
   separator: \
   paperurl: src/main/resources/static/
+  pictureurl: D:\code\fuchuang\picture\
+spring:
+  redis:
+    # Redis数据库索引（默认为0）
+    database: 1
+    # Redis服务器地址
+#    host: 49.234.181.190
+    host: 127.0.0.1
+    # Redis服务器连接端口
+    port: 6379
+  datasource:
+    username: root
+    password: mysql888
+    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://49.234.181.190:3306/fuchuang
+    url: jdbc:mysql://localhost/fuchuang
