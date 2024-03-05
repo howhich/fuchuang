@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaperDetailController {
     @Autowired
     private PaperDetailService paperDetailService;
-    @ApiOperation(value = "通过id获取整体评阅")
-    @GetMapping("/getTotalPaperDetailById")
-    public Result<GetTotalJudgeRespVO> getTotalPaperDetailById(@RequestParam Long id) {
-        return paperDetailService.getTotalPaperDetailById(id);
-    }
+//    @ApiOperation(value = "通过id获取整体评阅")
+//    @GetMapping("/getTotalPaperDetailById")
+//    public Result<GetTotalJudgeRespVO> getTotalPaperDetailById(@RequestParam Long id) {
+//        return paperDetailService.getTotalPaperDetailById(id);
+//    }
 }

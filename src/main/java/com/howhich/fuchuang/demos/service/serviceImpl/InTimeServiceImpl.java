@@ -1,15 +1,12 @@
 package com.howhich.fuchuang.demos.service.serviceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.howhich.fuchuang.demos.Utils.exception.DateUtil;
-import com.howhich.fuchuang.demos.Utils.exception.TimeUtil;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.constant.StatusType;
 import com.howhich.fuchuang.demos.entity.Base.PaperDetail;
 import com.howhich.fuchuang.demos.entity.Base.PaperResult;
 import com.howhich.fuchuang.demos.entity.Base.Question;
 import com.howhich.fuchuang.demos.entity.Base.Record;
-import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
 import com.howhich.fuchuang.demos.entity.resp.PaperDetailRespVO;
 import com.howhich.fuchuang.demos.mapper.PaperDetailMapper;
 import com.howhich.fuchuang.demos.service.*;
@@ -22,8 +19,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 

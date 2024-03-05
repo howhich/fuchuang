@@ -1,11 +1,11 @@
 package com.howhich.fuchuang.demos.controller;
 
+import com.howhich.fuchuang.demos.aspect.OperationAspect;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.entity.req.GetImportRecordsReqVO;
-import com.howhich.fuchuang.demos.entity.req.GetStudentRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.ImportRecordsReqVO;
+import com.howhich.fuchuang.demos.entity.resp.GetImportRecordsRespVO;
 import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
-import com.howhich.fuchuang.demos.entity.resp.StudentRecordsRespVO;
 import com.howhich.fuchuang.demos.service.RecordsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,12 +25,13 @@ public class RecordController {
 
     @PostMapping("/getImportRecords")
     @ApiOperation(value = "获取考试导入记录")
-    public Result<ImportRecordsRespVO> getImportRecords(@RequestBody GetImportRecordsReqVO reqVO){
+    public Result<GetImportRecordsRespVO> getImportRecords(@RequestBody GetImportRecordsReqVO reqVO){
         return recordsService.page(reqVO);
     }
     @PostMapping("/importRecords")
     @ApiOperation(value = "导入考试记录")
-    public Result importRecords(@RequestBody ImportRecordsReqVO reqVO){
+    @OperationAspect
+    public Result<ImportRecordsRespVO> importRecords(@RequestBody ImportRecordsReqVO reqVO){
         return recordsService.importRecords(reqVO);
     }
 

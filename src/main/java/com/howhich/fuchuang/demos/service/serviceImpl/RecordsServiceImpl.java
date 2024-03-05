@@ -5,13 +5,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.howhich.fuchuang.demos.constant.Result;
-import com.howhich.fuchuang.demos.entity.Base.PaperDetail;
 import com.howhich.fuchuang.demos.entity.Base.PaperResult;
 import com.howhich.fuchuang.demos.entity.Base.Record;
 import com.howhich.fuchuang.demos.entity.req.GetStudentRecordsReqVO;
-import com.howhich.fuchuang.demos.entity.req.ImportPaperResultReqVO;
 import com.howhich.fuchuang.demos.entity.req.GetImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.ImportRecordsReqVO;
+import com.howhich.fuchuang.demos.entity.resp.GetImportRecordsRespVO;
 import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
 import com.howhich.fuchuang.demos.entity.resp.StudentRecordsRespVO;
 import com.howhich.fuchuang.demos.mapper.PaperResultMapper;
@@ -19,6 +18,7 @@ import com.howhich.fuchuang.demos.mapper.RecordMapper;
 import com.howhich.fuchuang.demos.service.RecordsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,8 +41,12 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     private RecordMapper recordMapper;
     @Autowired
     private PaperResultMapper paperResultMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
+    List<Long> ids = new ArrayList<>();
+
     @Override
-    public Result<ImportRecordsRespVO> page(GetImportRecordsReqVO reqVO) {
+    public Result<GetImportRecordsRespVO> page(GetImportRecordsReqVO reqVO) {
         LambdaQueryWrapper queryWrapper = new LambdaQueryWrapper<Record>();
         Page<Record> page = new Page<>(reqVO.getPage(),reqVO.getPageSize());
         page = this.page(page,queryWrapper);
@@ -52,7 +56,7 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
 
         long count = this.count(queryWrapper);
 
-        ImportRecordsRespVO respVO = new ImportRecordsRespVO();
+        GetImportRecordsRespVO respVO = new GetImportRecordsRespVO();
         respVO.setList(page.getRecords());
         respVO.setTotal(count);
         return Result.success(respVO);
@@ -140,11 +144,12 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
         });
         this.saveBatch(records);
         int count = records.size();
+        redisTemplate.opsForValue().set("man","kobe");
         return Result.success("完成上传,共计图片数量："+count);
     }
 
     @Override
-    public Result importRecords(ImportRecordsReqVO reqVO) {
+    public Result<ImportRecordsRespVO> importRecords(ImportRecordsReqVO reqVO) {
         List<String> fileNames = reqVO.getFileNames();
         Record record = new Record();
         record.setRecordName(reqVO.getRecordName());
@@ -166,9 +171,15 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
             paperResult.setRecordId(id);
             paperResult.setPaperName(fileName);
             paperResultMapper.insert(paperResult);
+            ids.add(paperResultMapper.selectOne(new LambdaQueryWrapper<PaperResult>()
+                    .orderByDesc(PaperResult::getCreateTime)
+                    .last("limit 1")).getId());
         });
 
-        return Result.success("创建考试成功,id:" + id);
+        ImportRecordsRespVO respVO = new ImportRecordsRespVO();
+        respVO.setRecordId(id);
+        respVO.setIds(ids);
+        return Result.success(respVO);
     }
 
     @Override

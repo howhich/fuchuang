@@ -13,7 +13,6 @@ import com.howhich.fuchuang.demos.entity.req.GetPaperResultByIdReqVO;
 import com.howhich.fuchuang.demos.entity.req.GetStudentPaperResultReqVO;
 import com.howhich.fuchuang.demos.entity.resp.GetPaperResultByIdRespVO;
 import com.howhich.fuchuang.demos.entity.resp.GetStudentPaperResultRespVO;
-import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
 import com.howhich.fuchuang.demos.mapper.PaperResultMapper;
 import com.howhich.fuchuang.demos.service.PaperResultService;
 import com.howhich.fuchuang.demos.service.StudentService;
@@ -71,4 +70,11 @@ public class PaperResultServiceImpl extends ServiceImpl<PaperResultMapper, Paper
 
 //        return null;
     }
+
+    @Override
+    public void updateStatus(Long id) {
+        paperResultMapper.updateStatus(id);
+    }
+
+
 }
