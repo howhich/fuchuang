@@ -150,7 +150,7 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
 
     @Override
     public Result importRecords(ImportRecordsReqVO reqVO) {
-        //TODO 改成接受url
+
         try{
             List<String> fileNames = reqVO.getUrls();
             Record record = new Record();
@@ -161,6 +161,10 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
                     .orderByDesc(Record::getCreateTime)
                     .last("limit 1")).getId();
             fileNames.forEach(fileName->{
+//                "/www/wwwroot/picture/"
+//                fileName
+                int lastIndex = fileName.lastIndexOf("/");
+                fileName = fileName.substring(lastIndex+1);
                 PaperResult paperResult = new PaperResult();
 
                 String[] strings = fileName.split("_");
@@ -168,10 +172,13 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
                 String studentNum = strings[1];
                 String pageNum = strings[2];
 
+                int hashCode = (id + studentNum).hashCode();
+
                 paperResult.setStatus("WAIT");
                 paperResult.setStudentNum(studentNum);
                 paperResult.setRecordId(id);
                 paperResult.setPaperName(fileName);
+                paperResult.setResultGroupId(Long.valueOf(hashCode));
                 paperResultMapper.insert(paperResult);
                 ids.add(paperResultMapper.selectOne(new LambdaQueryWrapper<PaperResult>()
                         .orderByDesc(PaperResult::getCreateTime)

@@ -28,11 +28,11 @@ public class PaperResultController {
     @Resource
     private PaperResultService paperResultService;
 
-    @PostMapping("/importPaper")
-    @ApiOperation(value = "导入单张图片")
-    public Result<String> importSinglePhoto(MultipartFile file) throws IOException {
-        return recordsService.importSinglePhoto(file);
-    }
+//    @PostMapping("/importPaper")
+//    @ApiOperation(value = "导入单张图片")
+//    public Result<String> importSinglePhoto(MultipartFile file) throws IOException {
+//        return recordsService.importSinglePhoto(file);
+//    }
 //    @PostMapping("/importBatchPhoto")
 //    @ApiOperation(value = "导入多张图片")
 //    public Result importBatchPhoto(@RequestBody List<MultipartFile> fileList) throws IOException {

@@ -18,11 +18,11 @@ public class PaperResult extends BaseDeleteEntity{
     private Long id;
     @ApiModelProperty(notes = "导入记录id")
     private Long recordId;
-    @ApiModelProperty(notes = "状态")
+    @ApiModelProperty(notes = "状态(WAIT OR DONE)")
     private String status;
     @ApiModelProperty(notes = "(定位试卷名称)")
     private String paperName;
-    @ApiModelProperty(notes = "分组id(两张卷子图片属于某一个人)")
+    @ApiModelProperty(notes = "分组id(多张卷子图片属于某一个人)")
     private Long resultGroupId;
     @ApiModelProperty(notes = "学号")
     private String studentNum;

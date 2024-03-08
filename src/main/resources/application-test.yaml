@@ -1,7 +1,7 @@
 file:
   separator: \
   paperurl: src/main/resources/static/
-  pictureurl: /www/wwwroot/picture
+  pictureurl: /www/wwwroot/picture/
 spring:
   redis:
     # Redis数据库索引（默认为0）
