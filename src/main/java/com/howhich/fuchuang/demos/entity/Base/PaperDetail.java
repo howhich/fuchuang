@@ -12,20 +12,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class PaperDetail {
+public class PaperDetail extends BaseDeleteEntity{
     @ApiModelProperty(notes = "试卷详情id")
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-    @ApiModelProperty(notes = "试卷记录id")
-    private Long paperResultId;
+    @ApiModelProperty(notes = "试卷组id")
+    private Long groupId;
     @ApiModelProperty(notes = "试卷总分")
-    private float totalGrade;
-    @ApiModelProperty(notes = "实际得分")
-    private float indeedGrade;
-    @ApiModelProperty(notes = "试卷主人")
-    private String paperOwner;
-    @ApiModelProperty(notes = "创建时间")
-    private String createTime;
+    private float score;
+    @ApiModelProperty(notes = "评阅")
+    private String comment;
+    @ApiModelProperty(notes = "题号")
+    private int questionNum;
     @ApiModelProperty(notes = "图片地址")
     private String url;
+    @ApiModelProperty(notes = "类型(0表示答题卡 1表示原卷 2表示参考答案 3表示原卷切割)")
+    private int type;
 }

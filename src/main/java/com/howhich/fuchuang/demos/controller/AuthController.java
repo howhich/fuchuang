@@ -76,19 +76,19 @@ public class AuthController {
     public Result resetUsers(@RequestBody List<Long> ids){
         return authService.resetUsers(ids);
     }
-    @SaCheckRole(value = RoleType.STUDENT.code)
-    @GetMapping("/studentInfo")
-    @ApiOperation(value = "学生获取自身信息")
-    public Result<GetStudentInfoRespVO> getStudentInfo(){
-        return authService.getStudentInfo();
-    }
-
-    @SaCheckRole(value = RoleType.STUDENT.code)
-    @PostMapping("/studentEdit")
-    @ApiOperation(value = "学生编辑自身信息")
-    public Result registry(@RequestBody StudentEditReqVO reqVO){
-        return authService.studentEdit(reqVO);
-    }
+//    @SaCheckRole(value = RoleType.STUDENT.code)
+//    @GetMapping("/studentInfo")
+//    @ApiOperation(value = "学生获取自身信息")
+//    public Result<GetStudentInfoRespVO> getStudentInfo(){
+//        return authService.getStudentInfo();
+//    }
+//
+//    @SaCheckRole(value = RoleType.STUDENT.code)
+//    @PostMapping("/studentEdit")
+//    @ApiOperation(value = "学生编辑自身信息")
+//    public Result registry(@RequestBody StudentEditReqVO reqVO){
+//        return authService.studentEdit(reqVO);
+//    }
 
     @SaCheckRole(value = RoleType.TEACHER.code)
     @GetMapping("/teacherInfo")

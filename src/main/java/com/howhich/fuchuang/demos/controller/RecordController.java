@@ -31,7 +31,7 @@ public class RecordController {
     @PostMapping("/importRecords")
     @ApiOperation(value = "导入考试记录")
     @OperationAspect
-    public Result<ImportRecordsRespVO> importRecords(@RequestBody ImportRecordsReqVO reqVO){
+    public Result importRecords(@RequestBody ImportRecordsReqVO reqVO){
         return recordsService.importRecords(reqVO);
     }
 

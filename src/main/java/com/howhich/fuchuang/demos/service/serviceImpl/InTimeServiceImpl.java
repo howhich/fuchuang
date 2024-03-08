@@ -49,7 +49,7 @@ public class InTimeServiceImpl implements InTimeService {
         File parentFile = new File(recordURL);
         parentFile.mkdir();
 
-        record.setUrl(recordURL);
+//        record.setUrl(recordURL);
         recordsService.save(record);
         Record oneRecord = recordsService.getOne(new LambdaQueryWrapper<Record>()
                 .orderByDesc(Record::getCreateTime).last("limit 1"));
@@ -69,7 +69,7 @@ public class InTimeServiceImpl implements InTimeService {
 
         //对PaperDetail处理
         PaperDetail paperDetail = new PaperDetail();
-        paperDetail.setPaperResultId(resultId);
+//        paperDetail.setPaperResultId(resultId);
         paperDetailService.save(paperDetail);
         PaperDetail detail = paperDetailService.getOne(new LambdaQueryWrapper<PaperDetail>()
                 .orderByDesc(PaperDetail::getCreateTime).last("limit 1"));

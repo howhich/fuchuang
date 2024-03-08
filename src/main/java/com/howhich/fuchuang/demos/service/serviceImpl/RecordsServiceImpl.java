@@ -123,7 +123,7 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
             detaiURL = detaiURL.replace("-","") + ".jpg";
 
             Record record = new Record();
-            record.setUrl(detaiURL);
+//            record.setUrl(detaiURL);
             record.setRecordName(file.getOriginalFilename());
             records.add(record);
 
@@ -149,37 +149,39 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     }
 
     @Override
-    public Result<ImportRecordsRespVO> importRecords(ImportRecordsReqVO reqVO) {
-        List<String> fileNames = reqVO.getFileNames();
-        Record record = new Record();
-        record.setRecordName(reqVO.getRecordName());
-        record.setStatus("JUDGING");
-        this.save(record);
-        Long id = this.getOne(new LambdaQueryWrapper<Record>()
-                .orderByDesc(Record::getCreateTime)
-                .last("limit 1")).getId();
-        fileNames.forEach(fileName->{
-            PaperResult paperResult = new PaperResult();
+    public Result importRecords(ImportRecordsReqVO reqVO) {
+        //TODO 改成接受url
+        try{
+            List<String> fileNames = reqVO.getUrls();
+            Record record = new Record();
+            record.setRecordName(reqVO.getRecordName());
+            record.setStatus("JUDGING");
+            this.save(record);
+            Long id = this.getOne(new LambdaQueryWrapper<Record>()
+                    .orderByDesc(Record::getCreateTime)
+                    .last("limit 1")).getId();
+            fileNames.forEach(fileName->{
+                PaperResult paperResult = new PaperResult();
 
-            String[] strings = fileName.split("_");
-            String pictureType = strings[0];
-            String studentNum = strings[1];
-            String pageNum = strings[2];
+                String[] strings = fileName.split("_");
+                String pictureType = strings[0];
+                String studentNum = strings[1];
+                String pageNum = strings[2];
 
-            paperResult.setStatus("WAIT");
-            paperResult.setStudentNum(studentNum);
-            paperResult.setRecordId(id);
-            paperResult.setPaperName(fileName);
-            paperResultMapper.insert(paperResult);
-            ids.add(paperResultMapper.selectOne(new LambdaQueryWrapper<PaperResult>()
-                    .orderByDesc(PaperResult::getCreateTime)
-                    .last("limit 1")).getId());
-        });
+                paperResult.setStatus("WAIT");
+                paperResult.setStudentNum(studentNum);
+                paperResult.setRecordId(id);
+                paperResult.setPaperName(fileName);
+                paperResultMapper.insert(paperResult);
+                ids.add(paperResultMapper.selectOne(new LambdaQueryWrapper<PaperResult>()
+                        .orderByDesc(PaperResult::getCreateTime)
+                        .last("limit 1")).getId());
+            });
 
-        ImportRecordsRespVO respVO = new ImportRecordsRespVO();
-        respVO.setRecordId(id);
-        respVO.setIds(ids);
-        return Result.success(respVO);
+            return Result.success("创建成功");
+        }catch (Exception e){
+            return Result.fail("创建失败:"+e);
+        }
     }
 
     @Override

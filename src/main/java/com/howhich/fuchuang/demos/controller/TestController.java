@@ -12,6 +12,7 @@ import com.howhich.fuchuang.demos.service.RecordsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,14 +32,17 @@ public class TestController {
     private AuthService authService;
     @Resource
     private RecordsService recordsService;
-
+    @Value("${file.pictureurl}")
+    private String url;
     @GetMapping("/normal")
     @ApiOperation("测试接口")
     public String normal(){
         return "hello,fufuchuangchuang";
     }
 
-
+    @GetMapping("/url")
+    @ApiOperation("urltest")
+    public String url(){return url;}
     @GetMapping("/hello")
     @ApiOperation("token测试")
     public String test1(){
@@ -76,7 +80,7 @@ public class TestController {
         detaiURL = detaiURL.replace("-","") + ".jpg";
 
         Record record = new Record();
-        record.setUrl(detaiURL);
+//        record.setUrl(detaiURL);
         System.out.println(file.getOriginalFilename());
         System.out.println(file.getName());
         record.setRecordName(file.getOriginalFilename());
@@ -111,7 +115,7 @@ public class TestController {
             detaiURL = detaiURL.replace("-","") + ".jpg";
 
             Record record = new Record();
-            record.setUrl(detaiURL);
+//            record.setUrl(detaiURL);
             record.setRecordName(file.getOriginalFilename());
             records.add(record);
 

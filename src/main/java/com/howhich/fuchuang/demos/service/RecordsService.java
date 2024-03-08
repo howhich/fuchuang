@@ -21,7 +21,7 @@ public interface RecordsService extends IService<Record> {
 
     Result importBatchPhoto(List<MultipartFile> fileList);
 
-    Result<ImportRecordsRespVO> importRecords(ImportRecordsReqVO reqVO);
+    Result importRecords(ImportRecordsReqVO reqVO);
 
     Result<StudentRecordsRespVO> getStudentRecords(GetStudentRecordsReqVO reqVO);
 }
