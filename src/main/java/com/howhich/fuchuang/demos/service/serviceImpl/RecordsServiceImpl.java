@@ -177,7 +177,7 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
                 paperResult.setStatus("WAIT");
                 paperResult.setStudentNum(studentNum);
                 paperResult.setRecordId(id);
-                paperResult.setPaperName(fileName);
+                paperResult.setUrl(fileName);
                 paperResult.setResultGroupId(Long.valueOf(hashCode));
                 paperResultMapper.insert(paperResult);
                 ids.add(paperResultMapper.selectOne(new LambdaQueryWrapper<PaperResult>()

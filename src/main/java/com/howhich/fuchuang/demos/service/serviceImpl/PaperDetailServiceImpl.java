@@ -7,9 +7,11 @@ import com.howhich.fuchuang.demos.entity.Base.PaperDetail;
 import com.howhich.fuchuang.demos.entity.resp.GetPaperDetailRespVO;
 import com.howhich.fuchuang.demos.entity.resp.GetPaperVisualizationRespVO;
 import com.howhich.fuchuang.demos.entity.resp.GetTotalJudgeRespVO;
+import com.howhich.fuchuang.demos.entity.resp.UpdatePaperDetailReqVO;
 import com.howhich.fuchuang.demos.mapper.PaperDetailMapper;
 import com.howhich.fuchuang.demos.mapper.PaperResultMapper;
 import com.howhich.fuchuang.demos.service.PaperDetailService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -79,9 +81,11 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
         List<GetPaperDetailRespVO> respVOS = new ArrayList<>();
         paperDetails.forEach(paperDetail ->{
             GetPaperDetailRespVO respVO = new GetPaperDetailRespVO();
+            respVO.setQuestionNum(paperDetail.getQuestionNum());
             respVO.setComment(paperDetail.getComment());
             respVO.setUrl(paperDetail.getUrl());
             respVO.setScore(paperDetail.getScore());
+
             respVOS.add(respVO);
         });
 
@@ -91,5 +95,19 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
     @Override
     public Result<GetPaperVisualizationRespVO> getPaperVisualization(Long groupId) {
         return null;
+    }
+
+    @Override
+    public Result updatePaperDetail(UpdatePaperDetailReqVO reqVO) {
+        PaperDetail paperDetail = new PaperDetail();
+        paperDetail.setType(3);
+        BeanUtils.copyProperties(reqVO,paperDetail);
+        LambdaQueryWrapper<PaperDetail> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PaperDetail::getGroupId,reqVO.getGroupId())
+                        .eq(PaperDetail::getQuestionNum,reqVO.getQuestionNum())
+                        .eq(PaperDetail::getType,3);
+        paperDetailMapper.update(paperDetail,queryWrapper);
+//        reqVO.getComment()
+        return Result.success("更新成功");
     }
 }

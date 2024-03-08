@@ -59,7 +59,7 @@ public class InTimeServiceImpl implements InTimeService {
 
         PaperResult paperResult = new PaperResult();
         paperResult.setRecordId(id);
-        paperResult.setPaperName("实时评阅:"+uuidForRecord);
+        paperResult.setUrl("实时评阅:"+uuidForRecord);
 //        paperResult.setCreateTime(DateUtil.getTimeWithSec());
         paperResultService.save(paperResult);
         PaperResult result = paperResultService.getOne(new LambdaQueryWrapper<PaperResult>()

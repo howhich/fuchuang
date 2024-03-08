@@ -5,6 +5,7 @@ import com.howhich.fuchuang.demos.entity.req.GetPaperDetailReqVO;
 import com.howhich.fuchuang.demos.entity.resp.GetPaperDetailRespVO;
 import com.howhich.fuchuang.demos.entity.resp.GetPaperVisualizationRespVO;
 import com.howhich.fuchuang.demos.entity.resp.GetTotalJudgeRespVO;
+import com.howhich.fuchuang.demos.entity.resp.UpdatePaperDetailReqVO;
 import com.howhich.fuchuang.demos.service.PaperDetailService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
@@ -39,5 +40,10 @@ public class PaperDetailController {
     @PostMapping("/getPaperVisualization")
     public Result<GetPaperVisualizationRespVO> getPaperVisualization(@RequestParam Long groupId) {
         return paperDetailService.getPaperVisualization(groupId);
+    }
+    @ApiOperation(value = "老师更改详细评阅")
+    @PostMapping("/updatePaperDetail")
+    public Result updatePaperDetail(@RequestBody UpdatePaperDetailReqVO reqVO){
+        return paperDetailService.updatePaperDetail(reqVO);
     }
 }

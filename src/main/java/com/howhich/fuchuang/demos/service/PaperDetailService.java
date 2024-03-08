@@ -6,6 +6,7 @@ import com.howhich.fuchuang.demos.entity.Base.PaperDetail;
 import com.howhich.fuchuang.demos.entity.resp.GetPaperDetailRespVO;
 import com.howhich.fuchuang.demos.entity.resp.GetPaperVisualizationRespVO;
 import com.howhich.fuchuang.demos.entity.resp.GetTotalJudgeRespVO;
+import com.howhich.fuchuang.demos.entity.resp.UpdatePaperDetailReqVO;
 
 import java.util.List;
 
@@ -20,4 +21,6 @@ public interface PaperDetailService extends IService<PaperDetail> {
     Result<List<GetPaperDetailRespVO>> getPaperDetail(Long groupId);
 
     Result<GetPaperVisualizationRespVO> getPaperVisualization(Long groupId);
+
+    Result updatePaperDetail(UpdatePaperDetailReqVO reqVO);
 }
