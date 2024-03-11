@@ -34,6 +34,7 @@ public class TestController {
     private RecordsService recordsService;
     @Value("${file.pictureurl}")
     private String url;
+
     @GetMapping("/normal")
     @ApiOperation("测试接口")
     public String normal(){

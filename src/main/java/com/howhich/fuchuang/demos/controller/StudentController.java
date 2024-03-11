@@ -3,8 +3,11 @@ package com.howhich.fuchuang.demos.controller;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.constant.RoleType;
+import com.howhich.fuchuang.demos.entity.req.GetImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.StudentEditReqVO;
+import com.howhich.fuchuang.demos.entity.resp.GetImportRecordsRespVO;
 import com.howhich.fuchuang.demos.entity.resp.GetStudentInfoRespVO;
+import com.howhich.fuchuang.demos.entity.resp.GetStudentRecordsRespVO;
 import com.howhich.fuchuang.demos.service.AuthService;
 import com.howhich.fuchuang.demos.service.StudentService;
 import io.swagger.annotations.Api;
@@ -37,6 +40,12 @@ public class StudentController {
     @ApiOperation(value = "学生编辑自身信息")
     public Result edit(@RequestBody StudentEditReqVO reqVO){
         return authService.studentEdit(reqVO);
+    }
+
+    @PostMapping("/getImportRecords")
+    @ApiOperation(value = "学生获取考试导入记录")
+    public Result<GetStudentRecordsRespVO> getImportRecords(@RequestBody GetImportRecordsReqVO reqVO){
+        return studentService.getStudentRecord(reqVO);
     }
 
 }
