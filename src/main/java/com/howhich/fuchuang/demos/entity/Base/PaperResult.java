@@ -20,13 +20,13 @@ public class PaperResult extends BaseDeleteEntity{
     private Long recordId;
     @ApiModelProperty(notes = "状态(WAIT OR DONE)")
     private String status;
-    @ApiModelProperty(notes = "(url)")
-    private String url;
     @ApiModelProperty(notes = "分组id(多张卷子图片属于某一个人)")
     private Long resultGroupId;
     @ApiModelProperty(notes = "学号")
     private String studentNum;
     @ApiModelProperty(notes = "姓名")
     private String name;
+    @ApiModelProperty(notes = "分数")
+    private Integer score;
 
 }

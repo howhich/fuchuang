@@ -5,19 +5,19 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.howhich.fuchuang.demos.constant.Result;
-import com.howhich.fuchuang.demos.entity.Base.PaperResult;
-import com.howhich.fuchuang.demos.entity.Base.Record;
-import com.howhich.fuchuang.demos.entity.Base.Student;
+import com.howhich.fuchuang.demos.entity.Base.*;
 import com.howhich.fuchuang.demos.entity.req.GetStudentRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.GetImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.ImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.resp.GetImportRecordsRespVO;
 import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
 import com.howhich.fuchuang.demos.entity.resp.StudentRecordsRespVO;
+import com.howhich.fuchuang.demos.mapper.PaperDetailMapper;
 import com.howhich.fuchuang.demos.mapper.PaperResultMapper;
 import com.howhich.fuchuang.demos.mapper.RecordMapper;
 import com.howhich.fuchuang.demos.mapper.StudentMapper;
 import com.howhich.fuchuang.demos.service.RecordsService;
+import com.howhich.fuchuang.demos.service.UrlService;
 import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,9 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implements RecordsService {
@@ -48,6 +46,10 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     private RedisTemplate redisTemplate;
     @Autowired
     private StudentMapper studentMapper;
+    @Autowired
+    private UrlService urlService;
+    @Autowired
+    private PaperDetailMapper paperDetailMapper;
     List<Long> ids = new ArrayList<>();
 
     @Override
@@ -156,7 +158,7 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     @Override
     public Result importRecords(ImportRecordsReqVO reqVO) {
         List<Integer> hashCodes = new ArrayList<>();
-
+        Map<String,List<String>> map = new HashMap();
         try{
             List<String> fileNames = reqVO.getUrls();
             Record record = new Record();
@@ -167,10 +169,11 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
             Long id = this.getOne(new LambdaQueryWrapper<Record>()
                     .orderByDesc(Record::getCreateTime)
                     .last("limit 1")).getId();
+            record.setId(id);
             fileNames.forEach(fileName->{
 //                "/www/wwwroot/picture/"
-//                fileName
                 int lastIndex = fileName.lastIndexOf("/");
+                String originFileName = fileName;
                 fileName = fileName.substring(lastIndex+1);
                 PaperResult paperResult = new PaperResult();
 
@@ -179,26 +182,62 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
                 String studentNum = strings[1];
                 String pageNum = strings[2];
 
+
                 String name = "empty";
-                if(pictureType.equals(0)){
-                    name = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
-                                .eq(Student::getStudentNum, studentNum).last("limit 1"))
-                        .getName();
+                if(pictureType.equals("0")){
+                    //是卷子
+                    int hashCode = Math.abs((id + studentNum).hashCode());
+
+                    if(!hashCodes.contains(hashCode)){
+                        hashCodes.add(hashCode);
+                    }
+
+                    if(!map.containsKey(studentNum)){
+
+                        List<String> list = new ArrayList<>();
+                        list.add(originFileName);
+                        map.put(studentNum, list);
+
+                        name = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
+                                        .eq(Student::getStudentNum, studentNum)
+                                        .last("limit 1"))
+                                .getName();
+
+                        paperResult.setStatus("WAIT");
+                        paperResult.setStudentNum(studentNum);
+                        paperResult.setRecordId(id);
+                        paperResult.setResultGroupId(Long.valueOf(hashCode));
+                        paperResult.setName(name);
+                        paperResultMapper.insert(paperResult);
+
+                    }else{
+                        map.get(studentNum).add(originFileName);
+                    }
+                    PaperDetail detail = new PaperDetail();
+                    detail.setUrl(originFileName);
+                    detail.setGroupId((long) hashCode);
+                    detail.setType(0);
+                    paperDetailMapper.insert(detail);
+
+//                        Url url = new Url();
+//                        url.setUrl(originFileName);
+//                        url.setGroupId((long) hashCode);
+//                        url.setType(0);
+//                        urlService.save(url);
+                } //不是答题卡 是答案or题目
+                else {
+//                        Url url = new Url();
+//                        url.setUrl(originFileName);
+//                        url.setGroupId(id);
+//                        url.setType(Integer.parseInt(pictureType));
+//                        urlService.save(url);
+                    PaperDetail detail = new PaperDetail();
+                    detail.setUrl(originFileName);
+                    detail.setGroupId(id);
+                    detail.setType(Integer.parseInt(pictureType));
+                    paperDetailMapper.insert(detail);
+
                 }
-
-
-                int hashCode = (id + studentNum).hashCode();
-                hashCodes.add(hashCode);
-                paperResult.setStatus("WAIT");
-                paperResult.setStudentNum(studentNum);
-                paperResult.setRecordId(id);
-                paperResult.setUrl(fileName);
-                paperResult.setResultGroupId(Long.valueOf(hashCode));
-                paperResult.setName(name);
-                paperResultMapper.insert(paperResult);
-                ids.add(paperResultMapper.selectOne(new LambdaQueryWrapper<PaperResult>()
-                        .orderByDesc(PaperResult::getCreateTime)
-                        .last("limit 1")).getId());
             });
                 record.setTotalNum(hashCodes.size());
                 this.updateById(record);

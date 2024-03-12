@@ -5,7 +5,7 @@ spring:
     multipart:
       max-file-size: 10MB
   profiles:
-    active: test
+    active: prod
   # redis配置
   redis:
     # Redis数据库索引（默认为0）
