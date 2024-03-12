@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.howhich.fuchuang.demos.mapper.AuthMapper">
-    <update id="bindStudentById">
-        update fuchuang.student
-        set class_id = #{reqVO.classId}
-        where fuchuang.student.student_num = #{reqVO.studentNum}
-    </update>
+<mapper namespace="com.howhich.fuchuang.demos.mapper.StudentMapper">
 
 
-    <select id="getAllClasse" resultType="com.howhich.fuchuang.demos.entity.Base.Clazz">
-        select id,teacher_id,class_name
-        from fuchuang.clazz
-        where teacher_id = #{id}
-    </select>
-    <select id="getAllStudentsByClassId" resultType="com.howhich.fuchuang.demos.entity.Base.Student">
-        select id,class_id,student_num,name
-        from fuchuang.student
-        where class_id = #{classId}
-    </select>
-    <select id="getStudentByStudentNum" resultType="com.howhich.fuchuang.demos.entity.Base.Student">
-        select id,student_num,name,class_id
-        from fuchuang.student
-        where student_num = #{studentNum}
-    </select>
+<!--    <update id="bindStudentById">-->
+<!--        update fuchuang.student-->
+<!--        set class_id = #{reqVO.classId}-->
+<!--        where fuchuang.student.student_num = #{reqVO.studentNum}-->
+<!--    </update>-->
+
+
+<!--    <select id="getAllClasse" resultType="com.howhich.fuchuang.demos.entity.Base.Clazz">-->
+<!--        select id,teacher_id,class_name-->
+<!--        from fuchuang.clazz-->
+<!--        where teacher_id = #{id}-->
+<!--    </select>-->
+<!--    <select id="getAllStudentsByClassId" resultType="com.howhich.fuchuang.demos.entity.Base.Student">-->
+<!--        select id,class_id,student_num,name-->
+<!--        from fuchuang.student-->
+<!--        where class_id = #{classId}-->
+<!--    </select>-->
+<!--    <select id="getStudentByStudentNum" resultType="com.howhich.fuchuang.demos.entity.Base.Student">-->
+<!--        select id,student_num,name,class_id-->
+<!--        from fuchuang.student-->
+<!--        where student_num = #{studentNum}-->
+<!--    </select>-->
 </mapper>

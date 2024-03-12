@@ -30,20 +30,20 @@ public class PaperDetailController {
 //        return paperDetailService.getTotalPaperDetailById(id);
 //    }
     @ApiOperation(value = "通过组ID获取整体评阅")
-    @PostMapping("/getPaperTotal")
+    @GetMapping("/getPaperTotal")
     @SaCheckLogin
     public Result<List<String>> getPaperTotal(@RequestParam Long groupId) {
         return paperDetailService.getPaperTotal(groupId);
     }
     @ApiOperation(value = "通过组ID获取详细评阅")
-    @PostMapping("/getPaperDetail")
+    @GetMapping("/getPaperDetail")
     @SaCheckLogin
     public Result<List<GetPaperDetailRespVO>> getPaperDetail(@RequestParam Long groupId) {
         return paperDetailService.getPaperDetail(groupId);
     }
     @ApiOperation(value = "通过组ID获取可视化分析")
     @SaCheckLogin
-    @PostMapping("/getPaperVisualization")
+    @GetMapping("/getPaperVisualization")
     public Result<GetPaperVisualizationRespVO> getPaperVisualization(@RequestParam Long groupId) {
         return paperDetailService.getPaperVisualization(groupId);
     }

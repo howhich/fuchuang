@@ -60,14 +60,14 @@ public class AuthController {
     @PostMapping("/deleteUser")
     @SaCheckRole(value = RoleType.TEACHER.code)
     @ApiOperation(value = "老师删除用户(默认为批量删除 请传入List)")
-    public Result deleteUsers( @RequestBody List<UsersInfoReqVO> usersInfoReqVOList){
+    public Result deleteUsers( @RequestBody List<UsersDeleteReqVO> usersInfoReqVOList){
         return authService.delete(usersInfoReqVOList);
     }
 
 
     @PostMapping("/registry")
     @ApiOperation(value = "老师注册")
-    @SaCheckRole(value = RoleType.TEACHER.code)
+//    @SaCheckRole(value = RoleType.TEACHER.code)
     public Result registryUser(@RequestBody RegistryUserReqVO reqVO){
         return authService.registry(reqVO);
     }
@@ -76,7 +76,7 @@ public class AuthController {
     @PostMapping("/resetUsers")
     @ApiOperation(value = "老师批量重置用户密码")
     @SaCheckRole(value = RoleType.TEACHER.code)
-    public Result resetUsers(@RequestBody List<Long> ids){
+    public Result resetUsers(@RequestBody ResetReqVO ids){
         return authService.resetUsers(ids);
     }
 //    @SaCheckRole(value = RoleType.STUDENT.code)

@@ -67,7 +67,7 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     }
 
     @Override
-    public Result delete(List<UsersInfoReqVO> usersInfoReqVOList) {
+    public Result delete(List<UsersDeleteReqVO> usersInfoReqVOList) {
         List<Long> ids = new ArrayList<>();
         usersInfoReqVOList.forEach(usersInfoReqVO -> {
             ids.add(usersInfoReqVO.getId());
@@ -87,8 +87,9 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 
 
     @Override
-    public Result resetUsers(List<Long> ids) {
+    public Result resetUsers(ResetReqVO req) {
         List<User> users = new ArrayList<>();
+        List<Long> ids = req.getIds();
         ids.forEach(id -> {
             User user = this.getById(id);
             user.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));

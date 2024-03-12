@@ -1,15 +1,20 @@
 package com.howhich.fuchuang.demos.service.serviceImpl;
 
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
+import com.howhich.fuchuang.demos.Utils.exception.AssertUtils;
+import com.howhich.fuchuang.demos.Utils.exception.ExceptionsEnums;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.entity.Base.*;
+import com.howhich.fuchuang.demos.entity.listener.ImportBatchStudentsListener;
 import com.howhich.fuchuang.demos.entity.req.GetStudentRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.GetImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.ImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.resp.GetImportRecordsRespVO;
+import com.howhich.fuchuang.demos.entity.resp.ImportBatchStudentsRespVO;
 import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
 import com.howhich.fuchuang.demos.entity.resp.StudentRecordsRespVO;
 import com.howhich.fuchuang.demos.mapper.PaperDetailMapper;
@@ -19,6 +24,7 @@ import com.howhich.fuchuang.demos.mapper.StudentMapper;
 import com.howhich.fuchuang.demos.service.RecordsService;
 import com.howhich.fuchuang.demos.service.UrlService;
 import io.swagger.models.auth.In;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,6 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.*;
+
+import static cn.dev33.satoken.SaManager.log;
 
 @Service
 public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implements RecordsService {
@@ -252,4 +260,33 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
 
         return Result.success();
     }
+
+    @Override
+    public Result<ImportBatchStudentsRespVO> importBatchStudents(MultipartFile file) {
+        checkFile(file);
+
+        ImportBatchStudentsListener listener = new ImportBatchStudentsListener();
+        try {
+            System.out.println("准备导入人才公海");
+            EasyExcel.read(file.getInputStream(), StudentInfo.class, listener).sheet().doRead();
+
+        } catch (Exception ie) {
+            ie.printStackTrace();
+            AssertUtils.throwException(ExceptionsEnums.File.IMPORT_FAIL);
+        }
+        ImportBatchStudentsRespVO respVO = new ImportBatchStudentsRespVO();
+        respVO.setTotal(listener.getDataNum());
+        respVO.setMilSeconds(listener.getTime());
+        return Result.success(respVO);
+    }
+
+    private void checkFile(MultipartFile file) {
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(file), ExceptionsEnums.File.EMPTY_FILE);
+        String type = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1);
+        AssertUtils.isFalse("xlsx".equals(type) || "xls".equals(type), ExceptionsEnums.File.TYPE_NOT_ALLOWED);
+
+    }
+
+
+
 }

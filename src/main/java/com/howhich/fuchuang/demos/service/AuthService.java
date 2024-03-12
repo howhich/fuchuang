@@ -13,11 +13,11 @@ public interface AuthService extends IService<User> {
 
     Result<GetUsersRespVO> page(UsersInfoReqVO usersInfoReqVO);
 
-    Result delete(List<UsersInfoReqVO> usersInfoReqVOList);
+    Result delete(List<UsersDeleteReqVO> usersInfoReqVOList);
 
     Result add(User user);
 
-    Result resetUsers(List<Long> ids);
+    Result resetUsers(ResetReqVO ids);
 
     Result registry(RegistryUserReqVO reqVO);
 

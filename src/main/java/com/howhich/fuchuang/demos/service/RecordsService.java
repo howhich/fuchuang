@@ -7,6 +7,7 @@ import com.howhich.fuchuang.demos.entity.req.GetStudentRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.GetImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.ImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.resp.GetImportRecordsRespVO;
+import com.howhich.fuchuang.demos.entity.resp.ImportBatchStudentsRespVO;
 import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
 import com.howhich.fuchuang.demos.entity.resp.StudentRecordsRespVO;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,4 +25,6 @@ public interface RecordsService extends IService<Record> {
     Result importRecords(ImportRecordsReqVO reqVO);
 
     Result<StudentRecordsRespVO> getStudentRecords(GetStudentRecordsReqVO reqVO);
+
+    Result<ImportBatchStudentsRespVO> importBatchStudents(MultipartFile file);
 }
