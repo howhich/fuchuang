@@ -18,8 +18,10 @@ public class PaperDetail extends BaseDeleteEntity{
     private Long id;
     @ApiModelProperty(notes = "试卷组id")
     private Long groupId;
-    @ApiModelProperty(notes = "试卷总分")
+    @ApiModelProperty(notes = "题目得分")
     private float score;
+    @ApiModelProperty(notes = "题目总分")
+    private float totalScore;
     @ApiModelProperty(notes = "评阅")
     private String comment;
     @ApiModelProperty(notes = "题号")

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @Api(tags = "管理auth")
 public class AuthController {
     private final AuthService authService;
@@ -58,6 +58,7 @@ public class AuthController {
 //    }
 
     @PostMapping("/deleteUser")
+    @SaCheckRole(value = RoleType.TEACHER.code)
     @ApiOperation(value = "老师删除用户(默认为批量删除 请传入List)")
     public Result deleteUsers( @RequestBody List<UsersInfoReqVO> usersInfoReqVOList){
         return authService.delete(usersInfoReqVOList);
@@ -66,6 +67,7 @@ public class AuthController {
 
     @PostMapping("/registry")
     @ApiOperation(value = "老师注册")
+    @SaCheckRole(value = RoleType.TEACHER.code)
     public Result registryUser(@RequestBody RegistryUserReqVO reqVO){
         return authService.registry(reqVO);
     }
@@ -73,6 +75,7 @@ public class AuthController {
 
     @PostMapping("/resetUsers")
     @ApiOperation(value = "老师批量重置用户密码")
+    @SaCheckRole(value = RoleType.TEACHER.code)
     public Result resetUsers(@RequestBody List<Long> ids){
         return authService.resetUsers(ids);
     }

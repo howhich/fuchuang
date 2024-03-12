@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/student")
+@RequestMapping("/api/student")
 @Api(tags = "学生student")
 public class StudentController {
     @Autowired
@@ -42,6 +42,7 @@ public class StudentController {
         return authService.studentEdit(reqVO);
     }
 
+    @SaCheckRole(value = RoleType.STUDENT.code)
     @PostMapping("/getImportRecords")
     @ApiOperation(value = "学生获取考试导入记录")
     public Result<GetStudentRecordsRespVO> getImportRecords(@RequestBody GetImportRecordsReqVO reqVO){

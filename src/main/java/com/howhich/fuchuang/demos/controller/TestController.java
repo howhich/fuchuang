@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/test")
+@RequestMapping("/api/test")
 @Api(tags = "测试test")
 @Slf4j
 //@SaCheckLogin

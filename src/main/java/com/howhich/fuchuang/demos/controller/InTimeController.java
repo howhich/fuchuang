@@ -12,20 +12,20 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping("/inTime")
+@RequestMapping("/api/inTime")
 @Api(tags = "实时inTime")
 public class InTimeController {
 
     @Resource
     private InTimeService  inTimeService;
     @PostMapping("/uploadInTimePhotos")
-    @ApiOperation(value = "批量导入实时分析照片")
+    @ApiOperation(value = "创建实时导入考试记录(UNFINSHED)")
     public Result<Long> uploadInTimePhotos(@RequestBody List<MultipartFile> fileList){
         return inTimeService.uploadInTimePhotos(fileList);
     }
-    @GetMapping("/getInTimePhotos")
-    @ApiOperation(value = "获取实时分析照片结果")
-    public Result<PaperDetailRespVO> getInTimePhotos(@RequestParam Long paperId){
-        return inTimeService.getInTimePhotosById(paperId);
-    }
+//    @GetMapping("/getInTimePhotos")
+//    @ApiOperation(value = "获取实时分析照片结果")
+//    public Result<PaperDetailRespVO> getInTimePhotos(@RequestParam Long paperId){
+//        return inTimeService.getInTimePhotosById(paperId);
+//    }
 }

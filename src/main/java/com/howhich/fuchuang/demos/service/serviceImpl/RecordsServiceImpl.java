@@ -7,6 +7,7 @@ import com.github.pagehelper.PageHelper;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.entity.Base.PaperResult;
 import com.howhich.fuchuang.demos.entity.Base.Record;
+import com.howhich.fuchuang.demos.entity.Base.Student;
 import com.howhich.fuchuang.demos.entity.req.GetStudentRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.GetImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.ImportRecordsReqVO;
@@ -15,7 +16,9 @@ import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
 import com.howhich.fuchuang.demos.entity.resp.StudentRecordsRespVO;
 import com.howhich.fuchuang.demos.mapper.PaperResultMapper;
 import com.howhich.fuchuang.demos.mapper.RecordMapper;
+import com.howhich.fuchuang.demos.mapper.StudentMapper;
 import com.howhich.fuchuang.demos.service.RecordsService;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -43,6 +46,8 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     private PaperResultMapper paperResultMapper;
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    private StudentMapper studentMapper;
     List<Long> ids = new ArrayList<>();
 
     @Override
@@ -150,12 +155,14 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
 
     @Override
     public Result importRecords(ImportRecordsReqVO reqVO) {
+        List<Integer> hashCodes = new ArrayList<>();
 
         try{
             List<String> fileNames = reqVO.getUrls();
             Record record = new Record();
             record.setRecordName(reqVO.getRecordName());
             record.setStatus("JUDGING");
+
             this.save(record);
             Long id = this.getOne(new LambdaQueryWrapper<Record>()
                     .orderByDesc(Record::getCreateTime)
@@ -172,19 +179,29 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
                 String studentNum = strings[1];
                 String pageNum = strings[2];
 
-                int hashCode = (id + studentNum).hashCode();
+                String name = "empty";
+                if(pictureType.equals(0)){
+                    name = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
+                                .eq(Student::getStudentNum, studentNum).last("limit 1"))
+                        .getName();
+                }
 
+
+                int hashCode = (id + studentNum).hashCode();
+                hashCodes.add(hashCode);
                 paperResult.setStatus("WAIT");
                 paperResult.setStudentNum(studentNum);
                 paperResult.setRecordId(id);
                 paperResult.setUrl(fileName);
                 paperResult.setResultGroupId(Long.valueOf(hashCode));
+                paperResult.setName(name);
                 paperResultMapper.insert(paperResult);
                 ids.add(paperResultMapper.selectOne(new LambdaQueryWrapper<PaperResult>()
                         .orderByDesc(PaperResult::getCreateTime)
                         .last("limit 1")).getId());
             });
-
+                record.setTotalNum(hashCodes.size());
+                this.updateById(record);
             return Result.success("创建成功");
         }catch (Exception e){
             return Result.fail("创建失败:"+e);

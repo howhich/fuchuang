@@ -20,4 +20,6 @@ public class Record extends BaseDeleteEntity{
     private String recordName;
     @ApiModelProperty(notes = "状态 JUDGING or FINISH")
     private String status;
+    @ApiModelProperty(notes = "总参考人数")
+    private int totalNum;
 }

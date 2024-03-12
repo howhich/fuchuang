@@ -38,26 +38,27 @@ public class OperationCallAspect {
 
         try {
             AsyncExecutor.getExecutor().schedule(new Thread(() ->{
-                System.out.printf("——————————————————AOP异步调用启动————————————————————————————————");
+                System.out.println("——————————————————AOP异步调用启动————————————————————————————————");
+                //todo 调用外部接口
 
-                System.out.printf(data.toString());
-                Result result = (Result) data;
-                ImportRecordsRespVO respVO = (ImportRecordsRespVO) result.getData();
-//            ImportRecordsRespVO respVO = (ImportRecordsRespVO) data;
-                List<Long> ids = respVO.getIds();
-                int size = ids.size();
-                List<PaperResult> paperResults = new ArrayList<>();
-
-                for(int i = 0;i<size;i++){
-                    PaperResult paperResult = new PaperResult();
-                    paperResult.setId(ids.get(i));
-                    paperResult.setCreateUser(1L);
-                    paperResult.setUpdateUser(1L);
-                    paperResults.add(paperResult);
-                    paperResultService.updateStatus(ids.get(i));
-
-                }
-                System.out.printf("——————————————————AOP异步调用成功————————————————————————————————");
+//                System.out.printf(data.toString());
+//                Result result = (Result) data;
+//                ImportRecordsRespVO respVO = (ImportRecordsRespVO) result.getData();
+////            ImportRecordsRespVO respVO = (ImportRecordsRespVO) data;
+//                List<Long> ids = respVO.getIds();
+//                int size = ids.size();
+//                List<PaperResult> paperResults = new ArrayList<>();
+//
+//                for(int i = 0;i<size;i++){
+//                    PaperResult paperResult = new PaperResult();
+//                    paperResult.setId(ids.get(i));
+//                    paperResult.setCreateUser(1L);
+//                    paperResult.setUpdateUser(1L);
+//                    paperResults.add(paperResult);
+//                    paperResultService.updateStatus(ids.get(i));
+//
+//                }
+                System.out.println("——————————————————AOP异步调用成功————————————————————————————————");
 
             }));
         }catch (Exception e){

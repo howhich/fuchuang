@@ -1,6 +1,8 @@
 package com.howhich.fuchuang.demos.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.howhich.fuchuang.demos.constant.Result;
+import com.howhich.fuchuang.demos.constant.RoleType;
 import com.howhich.fuchuang.demos.entity.req.GetPaperResultByIdReqVO;
 import com.howhich.fuchuang.demos.entity.req.GetStudentPaperResultReqVO;
 import com.howhich.fuchuang.demos.entity.resp.GetPaperResultByIdRespVO;
@@ -19,7 +21,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/import")
+@RequestMapping("/api/import")
 @Api(tags = "导入file")
 public class FileController {
     @Resource
@@ -27,6 +29,7 @@ public class FileController {
 
     @PostMapping("/importFile")
     @ApiOperation(value = "导入图片")
+    @SaCheckRole(value = RoleType.STUDENT.code)
     public Result<String> importSinglePhoto(MultipartFile file) throws IOException {
         return recordsService.importSinglePhoto(file);
     }

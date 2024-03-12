@@ -1,6 +1,8 @@
 package com.howhich.fuchuang.demos.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.howhich.fuchuang.demos.constant.Result;
+import com.howhich.fuchuang.demos.constant.RoleType;
 import com.howhich.fuchuang.demos.entity.Base.PaperResult;
 import com.howhich.fuchuang.demos.entity.req.GetPaperResultByIdReqVO;
 import com.howhich.fuchuang.demos.entity.req.GetStudentPaperResultReqVO;
@@ -20,7 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/paperResult")
+@RequestMapping("/api/paperResult")
 @Api(tags = "试卷paper")
 public class PaperResultController {
     @Resource
@@ -39,11 +41,13 @@ public class PaperResultController {
 //        return recordsService.importBatchPhoto(fileList);
 //    }
     @PostMapping("/getPaperResultsByRecordId")
+    @SaCheckRole(value = RoleType.TEACHER.code)
     @ApiOperation(value = "老师通过考试记录id获取试卷评阅结果")
     public Result<GetPaperResultByIdRespVO> getPaperResultsByRecordId(@RequestBody GetPaperResultByIdReqVO reqVO){
         return paperResultService.page(reqVO);
     }
 
+    @SaCheckRole(value = RoleType.STUDENT.code)
     @PostMapping("/getStudentPaperResult")
     @ApiOperation(value = "学生获取自身试卷评阅结果")
     public Result<GetStudentPaperResultRespVO> getStudentPaperResult(@RequestBody GetStudentPaperResultReqVO reqVO){

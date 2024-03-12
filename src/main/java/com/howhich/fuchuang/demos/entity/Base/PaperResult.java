@@ -26,5 +26,7 @@ public class PaperResult extends BaseDeleteEntity{
     private Long resultGroupId;
     @ApiModelProperty(notes = "学号")
     private String studentNum;
+    @ApiModelProperty(notes = "姓名")
+    private String name;
 
 }

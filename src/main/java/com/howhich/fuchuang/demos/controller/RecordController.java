@@ -1,7 +1,9 @@
 package com.howhich.fuchuang.demos.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.howhich.fuchuang.demos.aspect.OperationAspect;
 import com.howhich.fuchuang.demos.constant.Result;
+import com.howhich.fuchuang.demos.constant.RoleType;
 import com.howhich.fuchuang.demos.entity.req.GetImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.req.ImportRecordsReqVO;
 import com.howhich.fuchuang.demos.entity.resp.GetImportRecordsRespVO;
@@ -17,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @RestController
-@RequestMapping("/record")
+@RequestMapping("/api/record")
 @Api(tags = "考试record")
 public class RecordController {
     @Resource
@@ -25,11 +27,13 @@ public class RecordController {
 
     @PostMapping("/getImportRecords")
     @ApiOperation(value = "获取考试导入记录")
+    @SaCheckRole(value = RoleType.TEACHER.code)
     public Result<GetImportRecordsRespVO> getImportRecords(@RequestBody GetImportRecordsReqVO reqVO){
         return recordsService.page(reqVO);
     }
     @PostMapping("/importRecords")
     @ApiOperation(value = "导入考试记录")
+    @SaCheckRole(value = RoleType.TEACHER.code)
     @OperationAspect
     public Result importRecords(@RequestBody ImportRecordsReqVO reqVO){
         return recordsService.importRecords(reqVO);
