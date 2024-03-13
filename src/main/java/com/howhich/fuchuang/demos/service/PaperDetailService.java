@@ -16,7 +16,7 @@ public interface PaperDetailService extends IService<PaperDetail> {
 
     Result<GetPaperDetailRespVO> getPaperDetailByIdAndNum(Long groupId);
 
-    Result<List<String>> getPaperTotal(Long groupId);
+    Result<GetTotalJudgeRespVO> getPaperTotal(Long groupId);
 
     Result<List<GetPaperDetailRespVO>> getPaperDetail(Long groupId);
 

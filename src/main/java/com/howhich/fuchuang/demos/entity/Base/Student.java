@@ -23,8 +23,8 @@ public class Student extends BaseDeleteEntity{
     private String studentNum;
     @ApiModelProperty(notes = "学生姓名")
     private String name;
-    @ApiModelProperty(notes = "是否可以更改")
-    private int changeable;
+//    @ApiModelProperty(notes = "是否可以更改")
+//    private int changeable;
 
 
 

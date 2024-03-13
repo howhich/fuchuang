@@ -67,11 +67,12 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     }
 
     @Override
-    public Result delete(List<UsersDeleteReqVO> usersInfoReqVOList) {
-        List<Long> ids = new ArrayList<>();
-        usersInfoReqVOList.forEach(usersInfoReqVO -> {
-            ids.add(usersInfoReqVO.getId());
-        });
+    public Result delete(UsersDeleteReqVO usersInfoReqVOList) {
+        List<Long> ids = usersInfoReqVOList.getIds();
+//        List<Long> ids = new ArrayList<>();
+//        usersInfoReqVOList.forEach(usersInfoReqVO -> {
+//            ids.add(usersInfoReqVO.getId());
+//        });
         this.removeByIds(ids);
         return Result.success("删除成功");
     }
@@ -101,7 +102,7 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 
 
     @Override
-    public Result registry(RegistryUserReqVO reqVO) {
+    public Result<TeacherRegistryRespVO> registry(RegistryUserReqVO reqVO) {
         User user = new User();
         BeanUtils.copyProperties(reqVO,user);
         user.setStatus(UserStatus.YES.code);
@@ -110,6 +111,7 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
         this.save(user);
         user = this.getOne(new LambdaQueryWrapper<User>().orderByDesc(User::getCreateTime)
                 .last("limit 1"));
+        Long id = user.getId();
         if(user.getRole().equals(RoleType.STUDENT.code)){
             Student student = Student.builder()
                     .id(user.getId())
@@ -123,7 +125,14 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
             teacherService.save(teacher);
         }
 
-        return Result.success("注册成功");
+        TeacherRegistryRespVO respVO = new TeacherRegistryRespVO();
+        respVO.setUsername(reqVO.getUsername());
+        respVO.setRole(RoleType.TEACHER.code);
+        respVO.setId(id);
+
+        StpUtil.login(id,true);
+        respVO.setAuthorization(StpUtil.getTokenValue());
+        return Result.success(respVO);
     }
 
     @Override
@@ -206,19 +215,25 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 
         this.save(user);
         user = this.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername,reqVO.getStudentNum()));
-
+        Long id = user.getId();
         Student student = Student.builder()
                 .studentNum((reqVO.getStudentNum()))
                 .name(reqVO.getName())
-                .id(user.getId())
-                .changeable(0)
+                .id(id)
+//                .changeable(0)
                 .build();
         studentService.save(student);
+
+//        TeacherRegistryRespVO respVO = new TeacherRegistryRespVO();
+//        respVO.setId(id);
+//        respVO.setRole(RoleType.TEACHER.code);
+//        respVO.setUsername(reqVO.getName());
         return Result.success("注册成功");
     }
     @Override
     public Result studentEdit(StudentEditReqVO reqVO) {
-        long id = StpUtil.getLoginIdAsLong();
+//        long id = StpUtil.getLoginIdAsLong();
+        long id = reqVO.getId();
         User user = User.builder()
                 .role(RoleType.STUDENT.code)
                 .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))
@@ -230,17 +245,17 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
         Student student = Student.builder()
                 .studentNum(reqVO.getStudentNum())
                 .name(reqVO.getName())
-                .changeable(0)
+//                .changeable(0)
                 .id(id)
                 .build();
         studentService.updateById(student);
-        return Result.success("学生编辑成功");
+        return Result.success("老师编辑学生信息成功");
     }
     @Override
     public Result teacherEdit(TeacherEditReqVO reqVO) {
         long id = StpUtil.getLoginIdAsLong();
         User user = User.builder()
-                .username(reqVO.getUsername())
+//                .username(reqVO.getUsername())
                 .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))
                 .id(id)
                 .build();
@@ -255,12 +270,12 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     }
 
     @Override
-    public Result<GetStudentInfoRespVO> getStudentInfo() {
-        long id = StpUtil.getLoginIdAsLong();
+    public Result<GetStudentInfoRespVO> getStudentInfo(Long id) {
+
         Student student = studentService.getOne(new LambdaQueryWrapper<Student>().eq(Student::getId,id));
         User user = this.getOne(new LambdaQueryWrapper<User>().eq(User::getId, id));
         GetStudentInfoRespVO resp = GetStudentInfoRespVO.builder()
-                .changeable(student.getChangeable())
+//                .changeable(student.getChangeable())
                 .StudentNum(student.getStudentNum())
                 .name(student.getName())
                 .password(user.getPassword())

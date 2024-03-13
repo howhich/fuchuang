@@ -23,17 +23,17 @@ public class StudentController {
     private StudentService studentService;
     @Autowired
     private AuthService authService;
-    @PostMapping("/registy")
-    @ApiOperation(value = "学生自己注册")
-    public Result registry(@RequestBody StudentEditReqVO reqVO){
-        return studentService.registry(reqVO);
-    }
-    @SaCheckRole(value = RoleType.STUDENT.code)
-    @GetMapping("/studentInfo")
-    @ApiOperation(value = "学生获取自身信息")
-    public Result<GetStudentInfoRespVO> getStudentInfo(){
-        return authService.getStudentInfo();
-    }
+//    @PostMapping("/registy")
+//    @ApiOperation(value = "学生自己注册")
+//    public Result registry(@RequestBody StudentEditReqVO reqVO){
+//        return studentService.registry(reqVO);
+//    }
+//    @SaCheckRole(value = RoleType.STUDENT.code)
+//    @GetMapping("/studentInfo")
+//    @ApiOperation(value = "学生获取自身信息")
+//    public Result<GetStudentInfoRespVO> getStudentInfo(){
+//        return authService.getStudentInfo();
+//    }
 
     @SaCheckRole(value = RoleType.STUDENT.code)
     @PostMapping("/studentEdit")

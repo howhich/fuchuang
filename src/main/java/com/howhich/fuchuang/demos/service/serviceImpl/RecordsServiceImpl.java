@@ -267,7 +267,7 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
 
         ImportBatchStudentsListener listener = new ImportBatchStudentsListener();
         try {
-            System.out.println("准备导入人才公海");
+            System.out.println("准备导入学生");
             EasyExcel.read(file.getInputStream(), StudentInfo.class, listener).sheet().doRead();
 
         } catch (Exception ie) {

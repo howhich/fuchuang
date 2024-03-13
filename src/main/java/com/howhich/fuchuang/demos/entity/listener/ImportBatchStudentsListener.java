@@ -1,18 +1,27 @@
 package com.howhich.fuchuang.demos.entity.listener;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.howhich.fuchuang.demos.Utils.FileUtil;
 import com.howhich.fuchuang.demos.Utils.exception.AssertUtils;
 import com.howhich.fuchuang.demos.Utils.exception.TimeUtil;
+import com.howhich.fuchuang.demos.entity.Base.Student;
 import com.howhich.fuchuang.demos.entity.Base.StudentInfo;
+import com.howhich.fuchuang.demos.entity.Base.User;
+import com.howhich.fuchuang.demos.mapper.AuthMapper;
 import com.howhich.fuchuang.demos.mapper.StudentMapper;
+import com.howhich.fuchuang.demos.mapper.UsersInfoMapper;
 import lombok.Data;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.DigestUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,6 +36,7 @@ import static cn.dev33.satoken.SaManager.log;
 @Data
 
 public class ImportBatchStudentsListener extends AnalysisEventListener<StudentInfo> {
+
     private File importFile;
 
     private Long dataNum = new Long(0l);
@@ -42,6 +52,7 @@ public class ImportBatchStudentsListener extends AnalysisEventListener<StudentIn
     @Override
     public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
         // 开始计时
+
         start = System.currentTimeMillis();
 
         // 获取数据实体的字段列表
@@ -81,7 +92,23 @@ public class ImportBatchStudentsListener extends AnalysisEventListener<StudentIn
 
     @Override
     public void invoke(StudentInfo info, AnalysisContext context) {
-        writeFile(info);
+//        writeFile(info);
+        long loginIdAsLong = StpUtil.getLoginIdAsLong();
+
+        UsersInfoMapper usersInfoMapper = SpringUtil.getBean(UsersInfoMapper.class);
+        usersInfoMapper.insert(User.builder()
+                        .username(info.getStudentNum())
+                        .password(DigestUtils.md5DigestAsHex("123456".getBytes()))
+                .build());
+        Long id = usersInfoMapper.selectOne(new LambdaQueryWrapper<User>()
+                        .orderByDesc(User::getCreateTime)
+                        .last("limit 1")).getId();
+        StudentMapper studentMapper = SpringUtil.getBean(StudentMapper.class);
+        studentMapper.insert(Student.builder()
+                        .name(info.getName())
+                        .studentNum(info.getStudentNum())
+                        .id(id)
+                        .build());
         dataNum++;
     }
 
@@ -92,8 +119,11 @@ public class ImportBatchStudentsListener extends AnalysisEventListener<StudentIn
             bufferedWriter.close();
             fileWriter.close();
 
-            StudentMapper mapper = SpringUtil.getBean(StudentMapper.class);
-            mapper.importStudnet(importFile.getPath());
+//            UsersInfoMapper usersInfoMapper = SpringUtil.getBean(UsersInfoMapper.class);
+//            usersInfoMapper.insert()
+
+//            StudentMapper studentMapper = SpringUtil.getBean(StudentMapper.class);
+//            studentMapper.importStudnet(importFile.getPath());
             time = System.currentTimeMillis()-start;
             log.info("{}条数据上传成功",dataNum);
         }catch (Exception e){
@@ -106,17 +136,11 @@ public class ImportBatchStudentsListener extends AnalysisEventListener<StudentIn
 
     private void writeFile(StudentInfo info){
         StringJoiner joiner = new StringJoiner(",");
-//        joiner.add(StringUtils.isNotEmpty(info.getName()) ? info.getName() : "");
-//        joiner.add(StringUtils.isNotEmpty(info.getPhone()) ? info.getPhone() : "");
-//        joiner.add(StringUtils.isNotEmpty(info.getSex()) ? info.getSex() : "");
-//        joiner.add(TimeUtil.getNowWithSec());
-//        joiner.add(StringUtils.isNotEmpty(info.getIdNum()) ? info.getIdNum() : "");
-//        joiner.add(StringUtils.isNotEmpty(info.getCertificateType()) ? info.getCertificateType() : "");
-//        joiner.add(StringUtils.isNotEmpty(info.getCertificateMajor()) ? info.getCertificateMajor() : "");
-//        joiner.add(StringUtils.isNotEmpty(info.getProfessionCertificate()) ? info.getProfessionCertificate() : "");
-//        joiner.add(StringUtils.isNotEmpty(info.getProfessionLevel()) ? info.getProfessionLevel() : "");
+        AssertUtils.isFalse(StringUtils.isNotEmpty(info.getStudentNum()),"学号不能为空");
+        AssertUtils.isFalse(StringUtils.isNotEmpty(info.getName()),"姓名不能为空");
 
-
+        joiner.add(StringUtils.isNotEmpty(info.getName()) ? info.getName() : "");
+        joiner.add(StringUtils.isNotEmpty(info.getStudentNum()) ? info.getStudentNum() : "");
 
         try {
             bufferedWriter.write(joiner.toString() + "\n");

@@ -13,4 +13,6 @@ public class StudentEditReqVO {
     private String name;
     @ApiModelProperty(notes = "初始密码")
     private String password;
+    @ApiModelProperty(notes = "id")
+    private Integer id;
 }

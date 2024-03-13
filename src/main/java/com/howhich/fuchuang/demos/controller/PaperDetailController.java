@@ -32,7 +32,7 @@ public class PaperDetailController {
     @ApiOperation(value = "通过组ID获取整体评阅")
     @GetMapping("/getPaperTotal")
     @SaCheckLogin
-    public Result<List<String>> getPaperTotal(@RequestParam Long groupId) {
+    public Result<GetTotalJudgeRespVO> getPaperTotal(@RequestParam Long groupId) {
         return paperDetailService.getPaperTotal(groupId);
     }
     @ApiOperation(value = "通过组ID获取详细评阅")

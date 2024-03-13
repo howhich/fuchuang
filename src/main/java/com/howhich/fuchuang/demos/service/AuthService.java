@@ -13,13 +13,13 @@ public interface AuthService extends IService<User> {
 
     Result<GetUsersRespVO> page(UsersInfoReqVO usersInfoReqVO);
 
-    Result delete(List<UsersDeleteReqVO> usersInfoReqVOList);
+    Result delete(UsersDeleteReqVO usersInfoReqVOList);
 
     Result add(User user);
 
     Result resetUsers(ResetReqVO ids);
 
-    Result registry(RegistryUserReqVO reqVO);
+    Result<TeacherRegistryRespVO> registry(RegistryUserReqVO reqVO);
 
     Result<GetAllClassRespVO> getAllClasses(GetAllClassReqVO reqVO);
 
@@ -33,7 +33,7 @@ public interface AuthService extends IService<User> {
 
     Result teacherEdit(TeacherEditReqVO reqVO);
 
-    Result<GetStudentInfoRespVO> getStudentInfo();
+    Result<GetStudentInfoRespVO> getStudentInfo(Long id);
 
     Result<GetTeacherInfoRespVO> getTeacherInfo();
 }

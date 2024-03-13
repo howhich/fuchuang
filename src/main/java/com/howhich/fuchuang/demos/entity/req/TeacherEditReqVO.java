@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 public class TeacherEditReqVO {
-    @ApiModelProperty(notes = "用户名")
-    private String username;
+//    @ApiModelProperty(notes = "用户名")
+//    private String username;
     @ApiModelProperty(notes = "老师姓名")
     private String name;
     @ApiModelProperty(notes = "初始密码")

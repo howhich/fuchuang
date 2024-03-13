@@ -60,15 +60,41 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
     }
 
     @Override
-    public Result<List<String>> getPaperTotal(Long groupId) {
-        List<String> urls = new ArrayList<>();
+    public Result<GetTotalJudgeRespVO> getPaperTotal(Long groupId) {
+        GetTotalJudgeRespVO respVO = new GetTotalJudgeRespVO();
+//        0表示答题卡 1表示原卷 2表示参考答案
+        List<String> answerCardUrls = new ArrayList<>();
         LambdaQueryWrapper<PaperDetail> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(PaperDetail::getGroupId,groupId).eq(PaperDetail::getType,1);
+        queryWrapper.eq(PaperDetail::getGroupId,groupId)
+                .eq(PaperDetail::getType,0)
+                .orderByAsc(PaperDetail::getQuestionNum);
         List<PaperDetail> paperDetails = paperDetailMapper.selectList(queryWrapper);
         paperDetails.forEach(paperDetail -> {
-            urls.add(paperDetail.getUrl());
+            answerCardUrls.add(paperDetail.getUrl());
         });
-        return Result.success(urls);
+
+        List<String> originalPaperUrls = new ArrayList<>();
+        List<PaperDetail> originalPapers = paperDetailMapper.selectList(new LambdaQueryWrapper<PaperDetail>()
+                .eq(PaperDetail::getGroupId, groupId)
+                .eq(PaperDetail::getType, 1)
+                .orderByAsc(PaperDetail::getQuestionNum));
+        originalPapers.forEach(originalPaper-> {
+            originalPaperUrls.add(originalPaper.getUrl());
+        });
+
+        List<String> answerUrls = new ArrayList<>();
+        List<PaperDetail> answerPapers = paperDetailMapper.selectList(new LambdaQueryWrapper<PaperDetail>()
+                .eq(PaperDetail::getGroupId, groupId)
+                .eq(PaperDetail::getType, 1)
+                .orderByAsc(PaperDetail::getQuestionNum));
+        answerPapers.forEach(originalPaper-> {
+            answerUrls.add(originalPaper.getUrl());
+        });
+
+        respVO.setAnswerCardUrls(answerCardUrls);
+        respVO.setAnswerUrls(answerUrls);
+        respVO.setOriginalPhotoUrls(originalPaperUrls);
+        return Result.success(respVO);
     }
 
     @Override

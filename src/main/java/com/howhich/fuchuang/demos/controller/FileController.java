@@ -36,7 +36,7 @@ public class FileController {
     }
     @PostMapping("/importBatchStudents")
     @ApiOperation(value = "批量导入学生")
-    @SaCheckRole(value = RoleType.STUDENT.code)
+    @SaCheckRole(value = RoleType.TEACHER.code)
     public Result<ImportBatchStudentsRespVO> importBatchStudents(MultipartFile file) throws IOException {
         return recordsService.importBatchStudents(file);
     }

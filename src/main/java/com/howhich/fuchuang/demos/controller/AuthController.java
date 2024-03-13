@@ -60,7 +60,7 @@ public class AuthController {
     @PostMapping("/deleteUser")
     @SaCheckRole(value = RoleType.TEACHER.code)
     @ApiOperation(value = "老师删除用户(默认为批量删除 请传入List)")
-    public Result deleteUsers( @RequestBody List<UsersDeleteReqVO> usersInfoReqVOList){
+    public Result deleteUsers( @RequestBody UsersDeleteReqVO usersInfoReqVOList){
         return authService.delete(usersInfoReqVOList);
     }
 
@@ -68,7 +68,7 @@ public class AuthController {
     @PostMapping("/registry")
     @ApiOperation(value = "老师注册")
 //    @SaCheckRole(value = RoleType.TEACHER.code)
-    public Result registryUser(@RequestBody RegistryUserReqVO reqVO){
+    public Result<TeacherRegistryRespVO> registryUser(@RequestBody RegistryUserReqVO reqVO){
         return authService.registry(reqVO);
     }
 
@@ -79,19 +79,19 @@ public class AuthController {
     public Result resetUsers(@RequestBody ResetReqVO ids){
         return authService.resetUsers(ids);
     }
-//    @SaCheckRole(value = RoleType.STUDENT.code)
-//    @GetMapping("/studentInfo")
-//    @ApiOperation(value = "学生获取自身信息")
-//    public Result<GetStudentInfoRespVO> getStudentInfo(){
-//        return authService.getStudentInfo();
-//    }
-//
-//    @SaCheckRole(value = RoleType.STUDENT.code)
-//    @PostMapping("/studentEdit")
-//    @ApiOperation(value = "学生编辑自身信息")
-//    public Result registry(@RequestBody StudentEditReqVO reqVO){
-//        return authService.studentEdit(reqVO);
-//    }
+    @SaCheckRole(value = RoleType.TEACHER.code)
+    @GetMapping("/studentInfo")
+    @ApiOperation(value = "老师获取学生信息")
+    public Result<GetStudentInfoRespVO> getStudentInfo(@RequestParam Long id){
+        return authService.getStudentInfo(id);
+    }
+
+    @SaCheckRole(value = RoleType.TEACHER.code)
+    @PostMapping("/teacherEditStudent")
+    @ApiOperation(value = "老师编辑学生信息")
+    public Result registry(@RequestBody StudentEditReqVO reqVO){
+        return authService.studentEdit(reqVO);
+    }
 
     @SaCheckRole(value = RoleType.TEACHER.code)
     @GetMapping("/teacherInfo")
