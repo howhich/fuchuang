@@ -243,7 +243,7 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 
         User user = User.builder()
                 .role(RoleType.STUDENT.code)
-                .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))
+//                .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))
                 .status(UserStatus.YES.code)
                 .username((String) redisTemplate.opsForValue().get("username"))
                 .id(id)
