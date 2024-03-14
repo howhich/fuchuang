@@ -13,6 +13,6 @@ public class GetStudentInfoRespVO {
     private String name;
     @ApiModelProperty(notes = "初始密码")
     private String password;
-    @ApiModelProperty(notes = "是否可更改（1可以 0不可以）")
-    private Integer changeable;
+//    @ApiModelProperty(notes = "是否可更改（1可以 0不可以）")
+//    private Integer changeable;
 }

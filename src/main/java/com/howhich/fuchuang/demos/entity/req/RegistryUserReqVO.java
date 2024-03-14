@@ -9,6 +9,6 @@ public class RegistryUserReqVO {
     private String username;
     @ApiModelProperty(notes = "密码")
     private String password;
-    @ApiModelProperty(notes = "角色")
-    private String role;
+//    @ApiModelProperty(notes = "角色")
+//    private String role;
 }

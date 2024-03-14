@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -262,6 +263,7 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     }
 
     @Override
+//    @Transactional
     public Result<ImportBatchStudentsRespVO> importBatchStudents(MultipartFile file) {
         checkFile(file);
 

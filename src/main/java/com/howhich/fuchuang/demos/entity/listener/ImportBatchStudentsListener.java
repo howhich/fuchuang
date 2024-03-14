@@ -8,6 +8,7 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.howhich.fuchuang.demos.Utils.FileUtil;
 import com.howhich.fuchuang.demos.Utils.exception.AssertUtils;
+import com.howhich.fuchuang.demos.Utils.exception.ExceptionsEnums;
 import com.howhich.fuchuang.demos.Utils.exception.TimeUtil;
 import com.howhich.fuchuang.demos.entity.Base.Student;
 import com.howhich.fuchuang.demos.entity.Base.StudentInfo;
@@ -95,15 +96,26 @@ public class ImportBatchStudentsListener extends AnalysisEventListener<StudentIn
 //        writeFile(info);
         long loginIdAsLong = StpUtil.getLoginIdAsLong();
 
+        StudentMapper studentMapper = SpringUtil.getBean(StudentMapper.class);
         UsersInfoMapper usersInfoMapper = SpringUtil.getBean(UsersInfoMapper.class);
+
+
+        Student student = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
+                .eq(Student::getStudentNum, info.getStudentNum())
+                .last("limit 1"));
+//        AssertUtils.isFalse(ObjectUtils.isEmpty(student), ExceptionsEnums.UserEX.USER_HAVE);
+        if(ObjectUtils.isNotEmpty(student)){
+            return;
+        }
+        String studentNum = info.getStudentNum();
+        String password = studentNum.substring(studentNum.length() - 6);
         usersInfoMapper.insert(User.builder()
                         .username(info.getStudentNum())
-                        .password(DigestUtils.md5DigestAsHex("123456".getBytes()))
+                        .password(DigestUtils.md5DigestAsHex(password.getBytes()))
                 .build());
         Long id = usersInfoMapper.selectOne(new LambdaQueryWrapper<User>()
                         .orderByDesc(User::getCreateTime)
                         .last("limit 1")).getId();
-        StudentMapper studentMapper = SpringUtil.getBean(StudentMapper.class);
         studentMapper.insert(Student.builder()
                         .name(info.getName())
                         .studentNum(info.getStudentNum())

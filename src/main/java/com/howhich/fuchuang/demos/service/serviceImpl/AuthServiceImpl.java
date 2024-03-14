@@ -103,6 +103,9 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 
     @Override
     public Result<TeacherRegistryRespVO> registry(RegistryUserReqVO reqVO) {
+        User one = this.getOne(new LambdaQueryWrapper<User>()
+                .eq(User::getUsername, reqVO.getUsername()).last("limit 1"));
+        AssertUtils.isFalse(ObjectUtils.isEmpty(one),ExceptionsEnums.UserEX.USER_HAVE);
         User user = new User();
         BeanUtils.copyProperties(reqVO,user);
         user.setStatus(UserStatus.YES.code);
@@ -112,18 +115,10 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
         user = this.getOne(new LambdaQueryWrapper<User>().orderByDesc(User::getCreateTime)
                 .last("limit 1"));
         Long id = user.getId();
-        if(user.getRole().equals(RoleType.STUDENT.code)){
-            Student student = Student.builder()
-                    .id(user.getId())
-                    .build();
-            studentService.save(student);
-        }
-        else if(user.getRole().equals(RoleType.TEACHER.code)){
             Teacher teacher = Teacher.builder()
                     .id(user.getId())
                     .build();
             teacherService.save(teacher);
-        }
 
         TeacherRegistryRespVO respVO = new TeacherRegistryRespVO();
         respVO.setUsername(reqVO.getUsername());
@@ -191,7 +186,7 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 //        Long classId = loginIdAsLong;
         List<String> studentNums = reqVO.getStudentNums();
         for (String studentNum : studentNums) {
-            Student student = studentService.getOne(new LambdaQueryWrapper<Student>().eq(Student::getStudentNum,studentNum));
+            Student student = studentService.getOne(new LambdaQueryWrapper<Student>().eq(Student::getStudentNum,studentNum).last("limit 1"));
             AssertUtils.isFalse(ObjectUtils.isNotEmpty(student), ExceptionsEnums.UserEX.ACCOUNT_NOT_FIND);
             student.setTeacherId(loginId);
             studentService.update(student,new LambdaQueryWrapper<Student>().eq(Student::getId,student.getId()));
@@ -234,6 +229,18 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     public Result studentEdit(StudentEditReqVO reqVO) {
 //        long id = StpUtil.getLoginIdAsLong();
         long id = reqVO.getId();
+        if(ObjectUtils.isNotEmpty(reqVO.getStudentNum())){
+            Student original = studentService.getOne(new LambdaQueryWrapper<Student>().
+                    eq(Student::getId,id).last("limit 1"));
+            String studentNum = original.getStudentNum();
+            if(!studentNum.equals(reqVO.getStudentNum())){
+                Student student = studentService.getOne(new LambdaQueryWrapper<Student>()
+                        .eq(Student::getStudentNum, reqVO.getStudentNum())
+                        .last("limit 1"));
+                AssertUtils.isFalse(ObjectUtils.isEmpty(student),ExceptionsEnums.UserEX.USER_HAVE);
+                }
+        }
+
         User user = User.builder()
                 .role(RoleType.STUDENT.code)
                 .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))

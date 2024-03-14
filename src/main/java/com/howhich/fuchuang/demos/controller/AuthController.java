@@ -71,8 +71,6 @@ public class AuthController {
     public Result<TeacherRegistryRespVO> registryUser(@RequestBody RegistryUserReqVO reqVO){
         return authService.registry(reqVO);
     }
-
-
     @PostMapping("/resetUsers")
     @ApiOperation(value = "老师批量重置用户密码")
     @SaCheckRole(value = RoleType.TEACHER.code)

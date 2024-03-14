@@ -69,7 +69,6 @@ public class PaperResultServiceImpl extends ServiceImpl<PaperResultMapper, Paper
         respVO.setTotal(count);
         return Result.success(respVO);
 
-//        return null;
     }
 
     @Override

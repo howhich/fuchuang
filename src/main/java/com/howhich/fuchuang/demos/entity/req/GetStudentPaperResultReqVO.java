@@ -5,8 +5,6 @@ import lombok.Data;
 
 @Data
 public class GetStudentPaperResultReqVO {
-    @ApiModelProperty(notes = "id")
-    private String id;
     private Integer page;
     private Integer pageSize;
 }
