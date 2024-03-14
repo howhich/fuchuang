@@ -69,6 +69,26 @@ public class TestController {
         return authService.page(usersInfoReqVO);
     }
 
+
+    @PostMapping("/jar")
+    @ApiOperation("上传jar测试")
+    public Result uploadjar (@RequestBody MultipartFile file) throws IOException {
+        if(!file.getOriginalFilename().equals("fuchuang-0.0.1-SNAPSHOT.jar")){
+            return Result.fail("文件名错误");
+        }
+        String basicUrl = url;
+        FileInputStream fileInputStream = (FileInputStream) file.getInputStream();
+        FileOutputStream fileOutputStream = new FileOutputStream(basicUrl + file.getOriginalFilename());
+        byte[] buffer = new byte[1024];
+        int len = 0;
+        while((len = fileInputStream.read(buffer)) != -1){
+            fileOutputStream.write(buffer, 0, len);
+        }
+        fileOutputStream.close();
+        return Result.success("完成上传");
+
+    }
+
     @PostMapping("/photo")
     @ApiOperation("上传图片测试")
     public Result uploadPhoto(@RequestBody MultipartFile file) throws IOException {
@@ -86,7 +106,7 @@ public class TestController {
         System.out.println(file.getName());
         record.setRecordName(file.getOriginalFilename());
         recordsService.save(record);
-// TODO 不需要存到数据库里面 数据库只存图片URI即可
+
         String basicURL = "src/main/resources/static/";
         FileOutputStream fileOutputStream = new FileOutputStream(basicURL + detaiURL);
 

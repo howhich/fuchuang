@@ -36,4 +36,8 @@ public interface AuthService extends IService<User> {
     Result<GetStudentInfoRespVO> getStudentInfo(Long id);
 
     Result<GetTeacherInfoRespVO> getTeacherInfo();
+
+    Result<GetStudentInfoRespVO> getStudentSelfInfo();
+
+    Result studentSelfEdit(StudentSelfEditReqVO reqVO);
 }

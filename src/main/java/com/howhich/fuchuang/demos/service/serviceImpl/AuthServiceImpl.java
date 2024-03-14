@@ -260,7 +260,14 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     }
     @Override
     public Result teacherEdit(TeacherEditReqVO reqVO) {
+        String oldPass = reqVO.getOldPass();
+
         long id = StpUtil.getLoginIdAsLong();
+        User one = this.getOne(new LambdaQueryWrapper<User>()
+                .eq(User::getId, id)
+                .last("limit 1"));
+        AssertUtils.isFalse(one.getPassword().equals(oldPass), ExceptionsEnums.UserEX.PWD_NO_MATCH);
+
         User user = User.builder()
 //                .username(reqVO.getUsername())
                 .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))
@@ -300,6 +307,58 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
                 .password(user.getPassword())
                 .build();
         return Result.success(respVO);
+    }
+
+    @Override
+    public Result<GetStudentInfoRespVO> getStudentSelfInfo() {
+        long id = StpUtil.getLoginIdAsLong();
+        Student student = studentService.getOne(new LambdaQueryWrapper<Student>().eq(Student::getId,id));
+        User user = this.getOne(new LambdaQueryWrapper<User>().eq(User::getId, id));
+        GetStudentInfoRespVO resp = GetStudentInfoRespVO.builder()
+//                .changeable(student.getChangeable())
+                .StudentNum(student.getStudentNum())
+                .name(student.getName())
+                .password(user.getPassword())
+                .build();
+        return Result.success(resp);
+    }
+
+    @Override
+    public Result studentSelfEdit(StudentSelfEditReqVO reqVO) {
+        long id = StpUtil.getLoginIdAsLong();
+        String oldPass = reqVO.getOldPass();
+        User one = this.getOne(new LambdaQueryWrapper<User>()
+                .eq(User::getId, id)
+                .eq(User::getPassword, oldPass).last("limit 1"));
+        AssertUtils.isFalse(one.getPassword().equals(oldPass),ExceptionsEnums.UserEX.PWD_NO_MATCH);
+        if(ObjectUtils.isNotEmpty(reqVO.getStudentNum())){
+            Student original = studentService.getOne(new LambdaQueryWrapper<Student>().
+                    eq(Student::getId,id).last("limit 1"));
+            String studentNum = original.getStudentNum();
+            if(!studentNum.equals(reqVO.getStudentNum())){
+                Student student = studentService.getOne(new LambdaQueryWrapper<Student>()
+                        .eq(Student::getStudentNum, reqVO.getStudentNum())
+                        .last("limit 1"));
+                AssertUtils.isFalse(ObjectUtils.isEmpty(student),ExceptionsEnums.UserEX.USER_HAVE);
+            }
+        }
+
+        User user = User.builder()
+                .role(RoleType.STUDENT.code)
+                .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))
+                .status(UserStatus.YES.code)
+                .username((String) redisTemplate.opsForValue().get("username"))
+                .id(id)
+                .build();
+        this.updateById(user);
+        Student student = Student.builder()
+                .studentNum(reqVO.getStudentNum())
+                .name(reqVO.getName())
+//                .changeable(0)
+                .id(id)
+                .build();
+        studentService.updateById(student);
+        return Result.success("学生编辑自身信息成功");
     }
 
 

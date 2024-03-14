@@ -81,13 +81,13 @@ public class ImportBatchStudentsListener extends AnalysisEventListener<StudentIn
         }
 
         // 表头匹配, 创建文件和流
-        try {
-            importFile = FileUtil.createFile(System.currentTimeMillis() + "ImportTalent.txt");
-            fileWriter = new FileWriter(importFile,true);
-            bufferedWriter = new BufferedWriter(fileWriter);
-        } catch (IOException e){
-            AssertUtils.throwException("导入失败(创建文件失败)");
-        }
+//        try {
+//            importFile = FileUtil.createFile(System.currentTimeMillis() + "ImportTalent.txt");
+//            fileWriter = new FileWriter(importFile,true);
+//            bufferedWriter = new BufferedWriter(fileWriter);
+//        } catch (IOException e){
+//            AssertUtils.throwException("导入失败(创建文件失败)");
+//        }
 
     }
 

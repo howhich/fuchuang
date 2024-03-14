@@ -25,7 +25,8 @@ public interface ExceptionsEnums extends Exceptions{
         NOT_PREMISS(401, "无访问权限"),
         ACCOUNT_NOT_FIND(500, "未查询到该用户信息"),
         NO_LOGIN(500, "请求异常，无登录信息"),
-        ROLE_NAME_REPEAT(500, "角色名称/编码重复,请重新输入");
+        ROLE_NAME_REPEAT(500, "角色名称/编码重复,请重新输入"),
+        PWD_NO_MATCH(500,"旧密码不匹配");
         private final int code;
         private final String msg;
     }

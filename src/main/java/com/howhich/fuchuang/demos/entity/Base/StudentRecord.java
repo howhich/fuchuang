@@ -18,7 +18,7 @@ public class StudentRecord extends BaseDeleteEntity{
     private Long id ;
     @ApiModelProperty(notes = "考试名称")
     private String recordName;
-    @ApiModelProperty(notes = "状态 JUDGING or FINISH")
+    @ApiModelProperty(notes = "状态 JUDGING or DONE")
     private String status;
     @ApiModelProperty(notes = "groupId")
     private Long groupId;

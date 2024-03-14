@@ -101,7 +101,8 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
     public Result<List<GetPaperDetailRespVO>> getPaperDetail(Long groupId) {
 
         LambdaQueryWrapper<PaperDetail> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(PaperDetail::getGroupId,groupId).eq(PaperDetail::getType,3);
+        queryWrapper.eq(PaperDetail::getGroupId,groupId).eq(PaperDetail::getType,3)
+                .orderByAsc(PaperDetail::getQuestionNum);
         List<PaperDetail> paperDetails = paperDetailMapper.selectList(queryWrapper);
 
         List<GetPaperDetailRespVO> respVOS = new ArrayList<>();
