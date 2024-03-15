@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -86,6 +87,21 @@ public class TestController {
         }
         fileOutputStream.close();
         return Result.success("完成上传");
+
+    }
+    @GetMapping("/roll")
+    @ApiOperation("轮询")
+    public DeferredResult<String> getDeferredResult(Long time){
+        DeferredResult<String> deferredResult = new DeferredResult<>(5000L,"time out man");
+        new Thread(()->{
+            try {
+                Thread.sleep(time);
+                deferredResult.setResult("success");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+        return deferredResult;
 
     }
 

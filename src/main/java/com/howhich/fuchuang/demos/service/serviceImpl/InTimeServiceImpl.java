@@ -2,100 +2,135 @@ package com.howhich.fuchuang.demos.service.serviceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.howhich.fuchuang.demos.constant.Result;
-import com.howhich.fuchuang.demos.constant.StatusType;
-import com.howhich.fuchuang.demos.entity.Base.PaperDetail;
-import com.howhich.fuchuang.demos.entity.Base.PaperResult;
-import com.howhich.fuchuang.demos.entity.Base.Question;
-import com.howhich.fuchuang.demos.entity.Base.Record;
+import com.howhich.fuchuang.demos.entity.Base.*;
+import com.howhich.fuchuang.demos.entity.req.InTimeReqVO;
 import com.howhich.fuchuang.demos.entity.resp.PaperDetailRespVO;
 import com.howhich.fuchuang.demos.mapper.PaperDetailMapper;
+import com.howhich.fuchuang.demos.mapper.PaperResultMapper;
+import com.howhich.fuchuang.demos.mapper.StudentMapper;
 import com.howhich.fuchuang.demos.service.*;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 @Service
 public class InTimeServiceImpl implements InTimeService {
-    @Resource
-    private PaperDetailService paperDetailService;
-    @Resource
-    private PaperResultService paperResultService;
-    @Resource
+    @Autowired
     private RecordsService recordsService;
+    @Resource
+    private StudentMapper studentMapper;
+    @Resource
+    private PaperResultMapper paperResultMapper;
     @Resource
     private PaperDetailMapper paperDetailMapper;
     @Resource
     private QuestionService questionService;
     @Value("${photo.BaseURL}")
     private String BaseURL;
+    @Autowired
+    private RedisTemplate redisTemplate;
     @Override
-    public Result uploadInTimePhotos(List<MultipartFile> fileList) {
-        Record record = new Record();
-        UUID uuidForRecord = UUID.randomUUID();
+    public Result uploadInTimePhotos(InTimeReqVO reqVO) {
+        //暂时做一个假逻辑
+//        if(ObjectUtils.isEmpty(redisTemplate.opsForValue().get("counter"))){
+//            redisTemplate.opsForValue().set("counter", 0);
+//        }
+//        redisTemplate.opsForValue().increment("counter");
+//        String counter = ""+redisTemplate.opsForValue().get("counter");
+//        if(counter.equals("1")){
+//            return Result.fail("正在处理中，请稍后");
+//        }
+//        if(counter.equals("2")){
+            List<Integer> hashCodes = new ArrayList<>();
+            Map<String,List<String>> map = new HashMap();
+            try{
+                List<String> fileNames = reqVO.getUrls();
+                Record record = new Record();
+                record.setRecordName("实时阅卷");
+                //TODO Mark一下
+                record.setStatus("DONE");
 
-        record.setRecordName("即时评阅:" + uuidForRecord);
-        record.setStatus(StatusType.JUDGING.code);
-        String recordURL1 = BaseURL + (uuidForRecord);
-        String recordURL = recordURL1.replace("-","");
+                recordsService.save(record);
+                Long id = recordsService.getOne(new LambdaQueryWrapper<Record>()
+                        .orderByDesc(Record::getCreateTime)
+                        .last("limit 1")).getId();
+                record.setId(id);
+                fileNames.forEach(fileName->{
+//                "/www/wwwroot/picture/"
+                    int lastIndex = fileName.lastIndexOf("/");
+                    String originFileName = fileName;
+                    fileName = fileName.substring(lastIndex+1);
+                    PaperResult paperResult = new PaperResult();
 
-        File parentFile = new File(recordURL);
-        parentFile.mkdir();
-
-//        record.setUrl(recordURL);
-        recordsService.save(record);
-        Record oneRecord = recordsService.getOne(new LambdaQueryWrapper<Record>()
-                .orderByDesc(Record::getCreateTime).last("limit 1"));
-        Long id = oneRecord.getId();
-
-        //对PaperResult处理
-
-        PaperResult paperResult = new PaperResult();
-        paperResult.setRecordId(id);
-//        paperResult.setUrl("实时评阅:"+uuidForRecord);
-//        paperResult.setCreateTime(DateUtil.getTimeWithSec());
-        paperResultService.save(paperResult);
-        PaperResult result = paperResultService.getOne(new LambdaQueryWrapper<PaperResult>()
-                .orderByDesc(PaperResult::getCreateTime).last("limit 1"));
-        Long resultId = result.getId();
+                    String[] strings = fileName.split("_");
+                    String pictureType = strings[0];
+                    String studentNum = strings[1];
+                    String pageNum = strings[2];
 
 
-        //对PaperDetail处理
-        PaperDetail paperDetail = new PaperDetail();
-//        paperDetail.setPaperResultId(resultId);
-        paperDetailService.save(paperDetail);
-        PaperDetail detail = paperDetailService.getOne(new LambdaQueryWrapper<PaperDetail>()
-                .orderByDesc(PaperDetail::getCreateTime).last("limit 1"));
-        Long detailId = detail.getId();
+                    String name = "empty";
+                    if(pictureType.equals("0")){
+                        //是卷子
+                        int hashCode = Math.abs((id + studentNum).hashCode());
 
-        fileList.forEach(file -> {
-//            UUID uuid = UUID.randomUUID();
-            String filename = file.getOriginalFilename();
-            String URL = recordURL + "\\" + filename;
-            paperDetailMapper.savePhoto(URL,detailId);
-            try {
-                FileInputStream fileInputStream =(FileInputStream) file.getInputStream();
-                FileOutputStream fileOutputStream = new FileOutputStream(URL);
-                byte[] buffer = new byte[1024];
-                int len = 0;
-                while ((len = fileInputStream.read(buffer))!=-1){
-                    fileOutputStream.write(buffer,0,len);
-                }
-                fileInputStream.close();
-                fileOutputStream.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                        if(!hashCodes.contains(hashCode)){
+                            hashCodes.add(hashCode);
+                        }
+
+                        if(!map.containsKey(studentNum)){
+
+                            List<String> list = new ArrayList<>();
+                            list.add(originFileName);
+                            map.put(studentNum, list);
+
+                            name = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
+                                            .eq(Student::getStudentNum, studentNum)
+                                            .last("limit 1"))
+                                    .getName();
+
+                            paperResult.setStatus("WAIT");
+                            paperResult.setStudentNum(studentNum);
+                            paperResult.setRecordId(id);
+                            paperResult.setResultGroupId(Long.valueOf(hashCode));
+                            paperResult.setName(name);
+                            paperResultMapper.insert(paperResult);
+
+                        }else{
+                            map.get(studentNum).add(originFileName);
+                        }
+                        PaperDetail detail = new PaperDetail();
+                        detail.setUrl(originFileName);
+                        detail.setGroupId((long) hashCode);
+                        detail.setType(0);
+                        paperDetailMapper.insert(detail);
+
+                    } //不是答题卡 是答案or题目
+                    else {
+                        PaperDetail detail = new PaperDetail();
+                        detail.setUrl(originFileName);
+                        detail.setGroupId(id);
+                        detail.setType(Integer.parseInt(pictureType));
+                        paperDetailMapper.insert(detail);
+
+                    }
+                });
+                record.setTotalNum(hashCodes.size());
+                recordsService.updateById(record);
+                return Result.success("创建成功");
+            }catch (Exception e){
+                return Result.fail("创建失败:"+e);
             }
-        });
-
-        return Result.success("处理完成");
+//        }
+        
+//        return Result.success("上传成功");
     }
 
     @Override

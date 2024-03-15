@@ -260,7 +260,7 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     }
     @Override
     public Result teacherEdit(TeacherEditReqVO reqVO) {
-        String oldPass = reqVO.getOldPass();
+        String oldPass = DigestUtils.md5DigestAsHex(reqVO.getOldPass().getBytes()) ;
 
         long id = StpUtil.getLoginIdAsLong();
         User one = this.getOne(new LambdaQueryWrapper<User>()
@@ -326,7 +326,7 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     @Override
     public Result studentSelfEdit(StudentSelfEditReqVO reqVO) {
         long id = StpUtil.getLoginIdAsLong();
-        String oldPass = reqVO.getOldPass();
+        String oldPass = DigestUtils.md5DigestAsHex(reqVO.getOldPass().getBytes());
         User one = this.getOne(new LambdaQueryWrapper<User>()
                 .eq(User::getId, id)
                 .eq(User::getPassword, oldPass).last("limit 1"));
