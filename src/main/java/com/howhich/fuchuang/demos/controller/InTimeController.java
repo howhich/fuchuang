@@ -6,6 +6,7 @@ import com.howhich.fuchuang.demos.entity.resp.InTimeRespVO;
 import com.howhich.fuchuang.demos.entity.resp.PaperDetailRespVO;
 import com.howhich.fuchuang.demos.service.InTimeService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,4 +31,9 @@ public class InTimeController {
 //    public Result<PaperDetailRespVO> getInTimePhotos(@RequestParam Long paperId){
 //        return inTimeService.getInTimePhotosById(paperId);
 //    }
+    @GetMapping("/getResult")
+    @ApiOperation(value = "通过id查询是否完成")
+    public Result getInTimeResult(@RequestParam Long groupId){
+        return inTimeService.getInTimeResult(groupId);
+    }
 }

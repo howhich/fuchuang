@@ -8,4 +8,6 @@ public interface InTimeService {
     Result uploadInTimePhotos(InTimeReqVO reqVO);
 
     Result<PaperDetailRespVO> getInTimePhotosById(Long paperDetailId);
+
+    Result getInTimeResult(Long groupId);
 }

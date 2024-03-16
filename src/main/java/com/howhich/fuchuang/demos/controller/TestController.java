@@ -12,6 +12,7 @@ import com.howhich.fuchuang.demos.service.RecordsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -174,5 +175,12 @@ public class TestController {
         recordsService.saveBatch(records);
         int count = records.size();
         return Result.success("完成上传,共计图片数量："+count);
+    }
+    @GetMapping("/sql")
+    @ApiOperation(value = "sqltest")
+    public Result sql(){
+//        SqlSessionTemplate sqlSessionTemplate;
+//        sqlSessionTemplate.
+        return null;
     }
 }

@@ -7,6 +7,7 @@ import com.howhich.fuchuang.demos.mapper.StudentMapper;
 import com.howhich.fuchuang.demos.mapper.TeacherMapper;
 import com.howhich.fuchuang.demos.service.StudentService;
 import com.howhich.fuchuang.demos.service.TeacherService;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Service;
 
 @Service

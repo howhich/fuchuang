@@ -157,5 +157,10 @@ public class InTimeServiceImpl implements InTimeService {
         return Result.success(paperDetailRespVO);
     }
 
+    @Override
+    public Result getInTimeResult(Long groupId) {
+        return null;
+    }
+
 
 }
