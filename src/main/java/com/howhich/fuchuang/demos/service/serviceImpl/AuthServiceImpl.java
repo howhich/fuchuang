@@ -74,6 +74,7 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 //            ids.add(usersInfoReqVO.getId());
 //        });
         this.removeByIds(ids);
+        studentService.removeByIds(ids);
         return Result.success("删除成功");
     }
 
@@ -212,6 +213,7 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
         user = this.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername,reqVO.getStudentNum()));
         Long id = user.getId();
         Student student = Student.builder()
+                .teacherId(StpUtil.getLoginIdAsLong())
                 .studentNum((reqVO.getStudentNum()))
                 .name(reqVO.getName())
                 .id(id)
