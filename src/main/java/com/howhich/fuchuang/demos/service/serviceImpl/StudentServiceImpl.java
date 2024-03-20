@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
+import com.howhich.fuchuang.demos.Utils.SM4EncryptUtil;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.constant.RoleType;
 import com.howhich.fuchuang.demos.constant.UserStatus;
@@ -24,6 +25,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +49,8 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         user.setStatus(UserStatus.YES.code);
         user.setRole(RoleType.STUDENT.code);
         user.setUsername(reqVO.getStudentNum());
-        user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
-
+//        user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
+        user.setPassword(SM4EncryptUtil.encrypt(user.getPassword()));
         usersInfoMapper.insert(user);
         user = usersInfoMapper.selectOne(new LambdaQueryWrapper<User>()
                 .orderByDesc(User::getCreateTime)
@@ -93,13 +95,16 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
             resultLambdaQueryWrapper.eq(PaperResult::getRecordId,recordId)
                     .eq(PaperResult::getStudentNum,studentNum).last("limit 1");
             PaperResult paperResult = paperResultMapper.selectOne(resultLambdaQueryWrapper);
-            Long resultGroupId = paperResult.getResultGroupId();
+            if(!ObjectUtils.isEmpty(paperResult)){
+                Long resultGroupId = paperResult.getResultGroupId();
 
-            StudentRecord studentRecord = new StudentRecord();
-            BeanUtils.copyProperties(record,studentRecord);
+                StudentRecord studentRecord = new StudentRecord();
+                BeanUtils.copyProperties(record,studentRecord);
 //            studentRecord.setRecordName(record.getRecordName());
-            studentRecord.setGroupId(resultGroupId);
-            studentRecords.add(studentRecord);
+                studentRecord.setGroupId(resultGroupId);
+                studentRecords.add(studentRecord);
+            }
+
         });
 
         respVO.setList(studentRecords);

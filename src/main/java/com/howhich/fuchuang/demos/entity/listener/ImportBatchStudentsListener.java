@@ -7,6 +7,7 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.howhich.fuchuang.demos.Utils.FileUtil;
+import com.howhich.fuchuang.demos.Utils.SM4EncryptUtil;
 import com.howhich.fuchuang.demos.Utils.exception.AssertUtils;
 import com.howhich.fuchuang.demos.Utils.exception.ExceptionsEnums;
 import com.howhich.fuchuang.demos.Utils.exception.TimeUtil;
@@ -111,7 +112,8 @@ public class ImportBatchStudentsListener extends AnalysisEventListener<StudentIn
         String password = studentNum.substring(studentNum.length() - 6);
         usersInfoMapper.insert(User.builder()
                         .username(info.getStudentNum())
-                        .password(DigestUtils.md5DigestAsHex(password.getBytes()))
+//                        .password(DigestUtils.md5DigestAsHex(password.getBytes()))
+                        .password(SM4EncryptUtil.encrypt(password))
                 .build());
         Long id = usersInfoMapper.selectOne(new LambdaQueryWrapper<User>()
                         .orderByDesc(User::getCreateTime)

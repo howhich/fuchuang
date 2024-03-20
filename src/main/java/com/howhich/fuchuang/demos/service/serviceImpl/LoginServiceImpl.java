@@ -2,6 +2,7 @@ package com.howhich.fuchuang.demos.service.serviceImpl;
 
 import cn.dev33.satoken.stp.SaLoginModel;
 import cn.dev33.satoken.stp.StpUtil;
+import com.howhich.fuchuang.demos.Utils.SM4EncryptUtil;
 import com.howhich.fuchuang.demos.Utils.exception.AssertUtils;
 import com.howhich.fuchuang.demos.Utils.exception.ExceptionsEnums;
 import com.howhich.fuchuang.demos.constant.RememberMe;
@@ -33,7 +34,8 @@ public class LoginServiceImpl implements LoginService {
 
 
         String password = reqVO.getPassword();
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
+//        password = DigestUtils.md5DigestAsHex(password.getBytes());
+        password = SM4EncryptUtil.encrypt(password);
 
         User user = loginMapper.getUserByUserName(reqVO.getUsername());
 

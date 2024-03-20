@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, PaperDetail> implements PaperDetailService {
@@ -68,10 +69,10 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
     @Override
     public Result<GetTotalJudgeRespVO> getPaperTotal(Long groupId) {
         //TODO 假设在阅卷
-        if(ObjectUtils.isEmpty(redisTemplate.opsForValue().get("totalCounter" + groupId))){
-            redisTemplate.opsForValue().set("totalCounter"+groupId,0);
-            return Result.fail("正在阅卷，请等待");
-        }
+//        if(ObjectUtils.isEmpty(redisTemplate.opsForValue().get("totalCounter" + groupId))){
+//            redisTemplate.opsForValue().set("totalCounter"+groupId,0,60, TimeUnit.SECONDS);
+//            return Result.fail("正在阅卷，请等待");
+//        }
 
         GetTotalJudgeRespVO respVO = new GetTotalJudgeRespVO();
 //        0表示答题卡 1表示原卷 2表示参考答案
@@ -117,11 +118,11 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
     @Override
     public Result<List<GetPaperDetailRespVO>> getPaperDetail(Long groupId) {
 
-        //TODO 假设在阅卷
-        if(ObjectUtils.isEmpty(redisTemplate.opsForValue().get("detailCounter" + groupId))){
-            redisTemplate.opsForValue().set("detailCounter"+groupId,0);
-            return Result.fail("正在阅卷，请等待");
-        }
+//        //TODO 假设在阅卷
+//        if(ObjectUtils.isEmpty(redisTemplate.opsForValue().get("detailCounter" + groupId))){
+//            redisTemplate.opsForValue().set("detailCounter"+groupId,0);
+//            return Result.fail("正在阅卷，请等待");
+//        }
         LambdaQueryWrapper<PaperDetail> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.eq(PaperDetail::getGroupId,groupId).eq(PaperDetail::getType,3)
                 .orderByAsc(PaperDetail::getQuestionNum);

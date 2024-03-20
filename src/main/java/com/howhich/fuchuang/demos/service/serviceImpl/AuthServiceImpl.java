@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
+import com.howhich.fuchuang.demos.Utils.SM4EncryptUtil;
 import com.howhich.fuchuang.demos.Utils.exception.AssertUtils;
 import com.howhich.fuchuang.demos.Utils.exception.ExceptionsEnums;
 import com.howhich.fuchuang.demos.constant.Result;
@@ -81,7 +82,8 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     @Override
     public Result add(User user) {
         user.setStatus(UserStatus.YES.code);
-        String password = DigestUtils.md5DigestAsHex("123456".getBytes());
+//        String password = DigestUtils.md5DigestAsHex("123456".getBytes());
+        String password = SM4EncryptUtil.encrypt("123456");
         user.setPassword(password);
         this.save(user);
         return Result.success("添加成功");
@@ -94,7 +96,8 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
         List<Long> ids = req.getIds();
         ids.forEach(id -> {
             User user = this.getById(id);
-            user.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
+//            user.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
+            user.setPassword(SM4EncryptUtil.encrypt("123456"));
             users.add(user);
         });
         this.updateBatchById(users);
@@ -110,8 +113,8 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
         User user = new User();
         BeanUtils.copyProperties(reqVO,user);
         user.setStatus(UserStatus.YES.code);
-        user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
-
+//        user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
+        user.setPassword(SM4EncryptUtil.encrypt(user.getPassword()));
         this.save(user);
         user = this.getOne(new LambdaQueryWrapper<User>().orderByDesc(User::getCreateTime)
                 .last("limit 1"));
@@ -205,7 +208,8 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
         User user = User.builder()
                 .status(UserStatus.YES.code)
                 .username((reqVO.getStudentNum()))
-                .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))
+//                .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))
+                .password(SM4EncryptUtil.encrypt(reqVO.getPassword()))
                 .role(RoleType.STUDENT.code)
                 .build();
 
@@ -262,8 +266,8 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     }
     @Override
     public Result teacherEdit(TeacherEditReqVO reqVO) {
-        String oldPass = DigestUtils.md5DigestAsHex(reqVO.getOldPass().getBytes()) ;
-
+//        String oldPass = DigestUtils.md5DigestAsHex(reqVO.getOldPass().getBytes()) ;
+        String oldPass = SM4EncryptUtil.decrypt(reqVO.getOldPass());
         long id = StpUtil.getLoginIdAsLong();
         User one = this.getOne(new LambdaQueryWrapper<User>()
                 .eq(User::getId, id)
@@ -272,7 +276,8 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 
         User user = User.builder()
 //                .username(reqVO.getUsername())
-                .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))
+//                .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))
+                .password(SM4EncryptUtil.encrypt(reqVO.getPassword()))
                 .id(id)
                 .build();
 
@@ -328,7 +333,8 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     @Override
     public Result studentSelfEdit(StudentSelfEditReqVO reqVO) {
         long id = StpUtil.getLoginIdAsLong();
-        String oldPass = DigestUtils.md5DigestAsHex(reqVO.getOldPass().getBytes());
+//        String oldPass = DigestUtils.md5DigestAsHex(reqVO.getOldPass().getBytes());
+        String oldPass = SM4EncryptUtil.encrypt(reqVO.getOldPass());
         User one = this.getOne(new LambdaQueryWrapper<User>()
                 .eq(User::getId, id)
                 .eq(User::getPassword, oldPass).last("limit 1"));
@@ -347,7 +353,8 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 
         User user = User.builder()
                 .role(RoleType.STUDENT.code)
-                .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))
+//                .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))
+                .password(SM4EncryptUtil.encrypt(reqVO.getPassword()))
                 .status(UserStatus.YES.code)
                 .username((String) redisTemplate.opsForValue().get("username"))
                 .id(id)

@@ -73,3 +73,4 @@ pagehelper:
 
 photo:
   BaseURL: F:\fuchuang\fuchuang\src\main\resources\static\
+encryption-key: abcdabcdabcdabcd

@@ -24,6 +24,9 @@ import java.util.Map;
 @Service
 public class InTimeServiceImpl implements InTimeService {
     @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Autowired
     private RecordsService recordsService;
     @Resource
     private StudentMapper studentMapper;
@@ -31,12 +34,11 @@ public class InTimeServiceImpl implements InTimeService {
     private PaperResultMapper paperResultMapper;
     @Resource
     private PaperDetailMapper paperDetailMapper;
-    @Resource
-    private QuestionService questionService;
+
     @Value("${photo.BaseURL}")
     private String BaseURL;
-    @Autowired
-    private RedisTemplate redisTemplate;
+//    @Autowired
+//    private RedisTemplate redisTemplate;
     @Override
     public Result uploadInTimePhotos(InTimeReqVO reqVO) {
         //暂时做一个假逻辑
@@ -133,33 +135,21 @@ public class InTimeServiceImpl implements InTimeService {
 //        return Result.success("上传成功");
     }
 
-    @Override
-    public Result<PaperDetailRespVO> getInTimePhotosById(Long paperDetailId) {
 
-
-        List<Question> list = questionService.list(new LambdaQueryWrapper<Question>()
-                .eq(Question::getPaperDetailId, paperDetailId));
-        int indeed = 0;
-        int total = 0;
-        for (Question question : list) {
-            indeed += question.getIndeedGrade() * 10;
-            total += question.getTotalGrade() * 10;
-        }
-        indeed /= 10;
-        total /= 10;
-        PaperDetailRespVO paperDetailRespVO = PaperDetailRespVO
-                .builder()
-                .questions(list)
-                .indeedGrade(indeed)
-                .totalGrade(total)
-                .build();
-
-        return Result.success(paperDetailRespVO);
-    }
 
     @Override
     public Result getInTimeResult(Long groupId) {
-        return null;
+        //todo FAKE
+        if(ObjectUtils.isEmpty(redisTemplate.opsForValue().get("Counter" + groupId))){
+            redisTemplate.opsForValue().set("Counter"+groupId,0);
+            return Result.fail("正在阅卷，请等待");
+        }
+        String status = paperResultMapper.selectOne(new LambdaQueryWrapper<PaperResult>()
+                .eq(PaperResult::getResultGroupId, groupId).last("limit 1")).getStatus();
+//        if(status.equals("WAIT")){
+//            return Result.fail("正在阅卷，请等待");
+//        }
+        return Result.success("评阅完成");
     }
 
 

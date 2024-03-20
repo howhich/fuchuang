@@ -7,7 +7,6 @@ import com.howhich.fuchuang.demos.entity.resp.PaperDetailRespVO;
 public interface InTimeService {
     Result uploadInTimePhotos(InTimeReqVO reqVO);
 
-    Result<PaperDetailRespVO> getInTimePhotosById(Long paperDetailId);
 
     Result getInTimeResult(Long groupId);
 }
