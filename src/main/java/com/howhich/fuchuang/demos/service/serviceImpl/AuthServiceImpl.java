@@ -23,6 +23,7 @@ import com.howhich.fuchuang.demos.service.AuthService;
 import com.howhich.fuchuang.demos.service.ClassService;
 import com.howhich.fuchuang.demos.service.StudentService;
 import com.howhich.fuchuang.demos.service.TeacherService;
+import org.apache.catalina.core.ApplicationContext;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import java.util.List;
 
 @Service
 public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implements AuthService {
+
 
     @Autowired
     private AuthMapper authMapper;

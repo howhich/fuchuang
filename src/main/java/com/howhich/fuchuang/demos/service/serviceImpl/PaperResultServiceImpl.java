@@ -29,6 +29,7 @@ public class PaperResultServiceImpl extends ServiceImpl<PaperResultMapper, Paper
     public Result<GetPaperResultByIdRespVO> page(GetPaperResultByIdReqVO reqVO) {
         LambdaQueryWrapper<PaperResult> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(PaperResult::getRecordId,reqVO.getId())
+                .orderByDesc(PaperResult::getScore)
                 .ne(PaperResult::getStudentNum,0);
         Page<PaperResult> page = new Page(reqVO.getPage(),reqVO.getPageSize());
 

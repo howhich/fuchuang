@@ -53,4 +53,10 @@ public class PaperDetailController {
     public Result updatePaperDetail(@RequestBody UpdatePaperDetailReqVO reqVO){
         return paperDetailService.updatePaperDetail(reqVO);
     }
+    @ApiOperation(value = "/exportPaperDetail")
+    @PostMapping("/exportPaperDetail")
+    @SaCheckLogin
+    public Result exportPaperDetail(@RequestParam Long groupId){
+        return paperDetailService.exportPaperDetail(groupId);
+    })
 }

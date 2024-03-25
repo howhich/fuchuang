@@ -160,4 +160,11 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
 //        reqVO.getComment()
         return Result.success("更新成功");
     }
+
+    @Override
+    public Result exportPaperDetail(Long groupId) {
+           
+
+        return null;
+    }
 }

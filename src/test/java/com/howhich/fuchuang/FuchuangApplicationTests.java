@@ -4,8 +4,11 @@ import cn.hutool.core.date.StopWatch;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.SmUtil;
 import cn.hutool.crypto.symmetric.SM4;
+import com.alibaba.excel.EasyExcel;
 import com.howhich.fuchuang.demos.Utils.SM4EncryptUtil;
 import com.howhich.fuchuang.demos.Utils.exception.TimeUtil;
+import com.howhich.fuchuang.demos.constant.Result;
+import com.howhich.fuchuang.demos.entity.Base.Record;
 import com.howhich.fuchuang.demos.entity.Base.User;
 import com.howhich.fuchuang.demos.mapper.UsersInfoMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static cn.hutool.core.util.RandomUtil.*;
@@ -25,6 +29,19 @@ import static cn.hutool.core.util.RandomUtil.*;
 class FuchuangApplicationTests {
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Test
+    void ExcelTest(){
+            String tempFileName = "simple.xlsx";
+            Record exportRecord = new Record();
+            exportRecord.setId(1L);
+            exportRecord.setTotalNum(55);
+            List<Record> records = new ArrayList<>();
+            records.add(exportRecord);
+            EasyExcel.write(tempFileName,Record.class)
+                    .sheet("考试导出")
+                    .doWrite(records);
+    }
     @Test
     void contextLoads() {
         redisTemplate.opsForValue().set("haha","nihao");

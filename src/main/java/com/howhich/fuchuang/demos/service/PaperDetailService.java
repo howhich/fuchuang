@@ -23,4 +23,6 @@ public interface PaperDetailService extends IService<PaperDetail> {
     Result<GetPaperVisualizationRespVO> getPaperVisualization(Long groupId);
 
     Result updatePaperDetail(UpdatePaperDetailReqVO reqVO);
+
+    Result exportPaperDetail(Long groupId);
 }

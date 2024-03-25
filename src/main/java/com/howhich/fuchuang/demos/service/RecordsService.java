@@ -27,4 +27,8 @@ public interface RecordsService extends IService<Record> {
     Result<StudentRecordsRespVO> getStudentRecords(GetStudentRecordsReqVO reqVO);
 
     Result<ImportBatchStudentsRespVO> importBatchStudents(MultipartFile file);
+
+    Result<?> exportRecords(Long recordId);
+
+    Result<?> exportSelfRecords();
 }

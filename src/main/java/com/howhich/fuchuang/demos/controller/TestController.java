@@ -12,7 +12,9 @@ import com.howhich.fuchuang.demos.service.RecordsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.core.ApplicationContext;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -36,6 +38,7 @@ public class TestController {
     private RecordsService recordsService;
     @Value("${file.pictureurl}")
     private String url;
+
 
     @GetMapping("/normal")
     @ApiOperation("测试接口")

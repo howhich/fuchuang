@@ -11,10 +11,7 @@ import com.howhich.fuchuang.demos.entity.resp.ImportRecordsRespVO;
 import com.howhich.fuchuang.demos.service.RecordsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -26,18 +23,30 @@ public class RecordController {
     private RecordsService recordsService;
 
     @PostMapping("/getImportRecords")
-    @ApiOperation(value = "获取考试导入记录")
+    @ApiOperation(value = "老师获取考试导入记录")
     @SaCheckRole(value = RoleType.TEACHER.code)
     public Result<GetImportRecordsRespVO> getImportRecords(@RequestBody GetImportRecordsReqVO reqVO){
         return recordsService.page(reqVO);
     }
     @PostMapping("/importRecords")
-    @ApiOperation(value = "导入考试记录")
+    @ApiOperation(value = "老师导入考试记录")
     @SaCheckRole(value = RoleType.TEACHER.code)
     @OperationAspect
     public Result importRecords(@RequestBody ImportRecordsReqVO reqVO){
         return recordsService.importRecords(reqVO);
     }
 
+    @GetMapping("/exportRecords")
+    @ApiOperation(value = "老师导出考试记录")
+    @SaCheckRole(value = RoleType.TEACHER.code)
+    public Result<?> exportRecords(@RequestParam Long recordId){
+        return recordsService.exportRecords(recordId);
+    }
 
+    @GetMapping("/exportStudentSelfRecords")
+    @ApiOperation(value = "学生导出考试记录")
+    @SaCheckRole(value = RoleType.STUDENT.code)
+    public Result<?> exportStudentSelfRecords(){
+        return recordsService.exportSelfRecords();
+    }
 }

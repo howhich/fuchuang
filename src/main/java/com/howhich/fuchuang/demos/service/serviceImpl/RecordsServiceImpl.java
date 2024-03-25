@@ -1,5 +1,6 @@
 package com.howhich.fuchuang.demos.service.serviceImpl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -20,6 +21,7 @@ import com.howhich.fuchuang.demos.mapper.PaperDetailMapper;
 import com.howhich.fuchuang.demos.mapper.PaperResultMapper;
 import com.howhich.fuchuang.demos.mapper.RecordMapper;
 import com.howhich.fuchuang.demos.mapper.StudentMapper;
+import com.howhich.fuchuang.demos.service.PaperResultService;
 import com.howhich.fuchuang.demos.service.RecordsService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +51,6 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     private RedisTemplate redisTemplate;
     @Autowired
     private StudentMapper studentMapper;
-    @Autowired
-    private UrlService urlService;
     @Autowired
     private PaperDetailMapper paperDetailMapper;
     List<Long> ids = new ArrayList<>();
@@ -275,6 +275,43 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
         respVO.setTotal(listener.getDataNum());
         respVO.setMilSeconds(listener.getTime());
         return Result.success(respVO);
+    }
+
+    @Override
+    public Result<?> exportRecords(Long recordId) {
+        List<PaperResult> paperResults = paperResultMapper.selectList(new LambdaQueryWrapper<PaperResult>()
+                .eq(PaperResult::getRecordId, recordId)
+                .orderByDesc(PaperResult::getScore));
+
+        String recordName = this.getOne(new LambdaQueryWrapper<Record>().eq(Record::getId, recordId)).getRecordName();
+
+        String tempFileName = recordName + System.currentTimeMillis() + ".xlsx";
+
+        EasyExcel.write(tempFileName,PaperResult.class)
+                .sheet("考试导出")
+                .doWrite(paperResults);
+        return Result.success();
+    }
+
+    @Override
+    public Result<?> exportSelfRecords() {
+        String studentNum = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
+                .eq(Student::getId, StpUtil.getLoginIdAsLong())
+                .last("limit 1")).getStudentNum();
+        String name = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
+                .eq(Student::getId, StpUtil.getLoginIdAsLong())
+                .last("limit 1")).getName();
+        List<PaperResult> paperResults = paperResultMapper.selectList(new LambdaQueryWrapper<PaperResult>()
+                .eq(PaperResult::getStudentNum, studentNum));
+
+        String tempFileName = name + "的试卷" + System.currentTimeMillis() + ".xlsx";
+
+        EasyExcel.write(tempFileName,PaperResult.class)
+                .sheet(name + "的试卷记录")
+                .doWrite(paperResults);
+        return Result.success();
+
+
     }
 
     private void checkFile(MultipartFile file) {
