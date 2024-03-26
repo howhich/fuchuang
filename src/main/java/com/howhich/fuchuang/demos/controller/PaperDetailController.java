@@ -4,14 +4,9 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.constant.RoleType;
-import com.howhich.fuchuang.demos.entity.req.GetPaperDetailReqVO;
-import com.howhich.fuchuang.demos.entity.resp.GetPaperDetailRespVO;
-import com.howhich.fuchuang.demos.entity.resp.GetPaperVisualizationRespVO;
-import com.howhich.fuchuang.demos.entity.resp.GetTotalJudgeRespVO;
-import com.howhich.fuchuang.demos.entity.resp.UpdatePaperDetailReqVO;
+import com.howhich.fuchuang.demos.entity.resp.*;
 import com.howhich.fuchuang.demos.service.PaperDetailService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -53,10 +48,30 @@ public class PaperDetailController {
     public Result updatePaperDetail(@RequestBody UpdatePaperDetailReqVO reqVO){
         return paperDetailService.updatePaperDetail(reqVO);
     }
-    @ApiOperation(value = "/exportPaperDetail")
+    @ApiOperation(value = "学生导出试卷详情")
     @PostMapping("/exportPaperDetail")
     @SaCheckLogin
-    public Result exportPaperDetail(@RequestParam Long groupId){
+    public Result<String> exportPaperDetail(@RequestParam Long groupId){
         return paperDetailService.exportPaperDetail(groupId);
-    })
+    }
+    @ApiOperation(value = "通过组ID获取得分情况")
+    @GetMapping("/getScoreCondition")
+    @SaCheckLogin
+    public Result<GetScoreRespVO> getScoreRespVO(@RequestParam Long groupId){
+        return paperDetailService.getScoreRespVO(groupId);
+    }
+
+    @ApiOperation(value = "通过组ID获取错题率")
+    @GetMapping("/getErrorRate")
+    @SaCheckLogin
+    public Result<GetErrorRateRespVO> getErrorRate(@RequestParam Long groupId){
+        return paperDetailService.getErrorRate(groupId);
+    }
+
+    @ApiOperation(value = "老师获取全班情况")
+    @GetMapping("/getTotalCondition")
+    @SaCheckLogin
+    public Result<GetTotalConditionRespVO> getTotalCondition(){
+        return paperDetailService.getTotalCondition();
+    }
 }

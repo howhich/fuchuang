@@ -1,27 +1,23 @@
 package com.howhich.fuchuang.demos.service.serviceImpl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.howhich.fuchuang.demos.constant.Result;
-import com.howhich.fuchuang.demos.entity.Base.Paper;
-import com.howhich.fuchuang.demos.entity.Base.PaperDetail;
-import com.howhich.fuchuang.demos.entity.Base.PaperResult;
-import com.howhich.fuchuang.demos.entity.resp.GetPaperDetailRespVO;
-import com.howhich.fuchuang.demos.entity.resp.GetPaperVisualizationRespVO;
-import com.howhich.fuchuang.demos.entity.resp.GetTotalJudgeRespVO;
-import com.howhich.fuchuang.demos.entity.resp.UpdatePaperDetailReqVO;
+import com.howhich.fuchuang.demos.entity.Base.*;
+import com.howhich.fuchuang.demos.entity.resp.*;
 import com.howhich.fuchuang.demos.mapper.PaperDetailMapper;
 import com.howhich.fuchuang.demos.mapper.PaperResultMapper;
+import com.howhich.fuchuang.demos.mapper.RecordMapper;
 import com.howhich.fuchuang.demos.service.PaperDetailService;
-import org.apache.commons.lang3.ObjectUtils;
+import com.howhich.fuchuang.demos.service.RecordsService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, PaperDetail> implements PaperDetailService {
@@ -32,6 +28,8 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
     private PaperResultMapper paperResultMapper;
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    private RecordMapper recordMapper;
     @Override
     public Result<GetTotalJudgeRespVO> getTotalPaperDetailById(Long id) {
 //        LambdaQueryWrapper<PaperDetail> queryWrapper = new LambdaQueryWrapper();
@@ -43,6 +41,7 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
 //
 //        GetTotalJudgeRespVO reqVO = new GetTotalJudgeRespVO();
 //        reqVO.setTotalPhotoUrls(urls);
+
         return Result.success();
     }
 
@@ -162,9 +161,155 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
     }
 
     @Override
-    public Result exportPaperDetail(Long groupId) {
+    public Result<String> exportPaperDetail(Long groupId) {
            
 
-        return null;
+        return Result.success();
     }
+
+    @Override
+    public Result<GetScoreRespVO> getScoreRespVO(Long groupId) {
+        List<PaperDetail> paperDetails = paperDetailMapper.selectList(new LambdaQueryWrapper<PaperDetail>()
+                .eq(PaperDetail::getGroupId, groupId));
+        GetScoreRespVO respVO = new GetScoreRespVO();
+        List<NumAndScore> numAndScores = new ArrayList<>();
+        paperDetails.forEach(paperDetail -> {
+            NumAndScore numAndScore = new NumAndScore();
+            BeanUtils.copyProperties(paperDetail,numAndScore);
+            numAndScores.add(numAndScore);
+        });
+        respVO.setNumAndScoreList(numAndScores);
+        return Result.success(respVO);
+    }
+
+    @Override
+    public Result<GetErrorRateRespVO> getErrorRate(Long groupId) {
+
+        List<PaperDetail> paperDetails = paperDetailMapper.selectList(new LambdaQueryWrapper<PaperDetail>()
+                .eq(PaperDetail::getGroupId, groupId)
+                .eq(PaperDetail::getType, 3));
+        AtomicReference<Integer> _0 = new AtomicReference<>(0);
+        AtomicReference<Integer> _20 = new AtomicReference<>(0);
+        AtomicReference<Integer> _40 = new AtomicReference<>(0);
+        AtomicReference<Integer> _60 = new AtomicReference<>(0);
+        AtomicReference<Integer> _80 = new AtomicReference<>(0);
+        AtomicReference<Integer> _99 = new AtomicReference<>(0);
+        AtomicReference<Integer> _100 = new AtomicReference<>(0);
+
+        paperDetails.forEach(paperDetail -> {
+            if(paperDetail.getScore()/paperDetail.getTotalScore() < 0.001){
+                _0.updateAndGet(v -> v + 1);
+            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.001 ||
+                    paperDetail.getScore()/paperDetail.getTotalScore() <= 0.2){
+                _20.updateAndGet(v -> v + 1);
+            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.2 ||
+                    paperDetail.getScore()/paperDetail.getTotalScore() <= 0.4){
+                _40.updateAndGet(v -> v + 1);
+            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.4 ||
+                    paperDetail.getScore()/paperDetail.getTotalScore() <= 0.6){
+                _60.updateAndGet(v -> v + 1);
+            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.6 ||
+                    paperDetail.getScore()/paperDetail.getTotalScore() <= 0.8){
+                _80.updateAndGet(v -> v + 1);
+            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.8 ||
+                    paperDetail.getScore()/paperDetail.getTotalScore() < 1){
+                _99.updateAndGet(v -> v + 1);
+            }else if(paperDetail.getScore() == paperDetail.getTotalScore()  ){
+                _100.updateAndGet(v -> v + 1);
+            }
+        });
+
+        GetErrorRateRespVO respVO = new GetErrorRateRespVO();
+
+        respVO.set_0(_0.get());
+        respVO.set_20(_20.get());
+        respVO.set_40(_40.get());
+        respVO.set_60(_60.get());
+        respVO.set_80(_80.get());
+        respVO.set_99(_99.get());
+        respVO.set_100(_100.get());
+
+        return Result.success(respVO);
+    }
+
+    @Override
+    public Result<GetTotalConditionRespVO> getTotalCondition() {
+        long loginId = StpUtil.getLoginIdAsLong();
+        List<Record> records = recordMapper.selectList(new LambdaQueryWrapper<Record>()
+                .eq(Record::getCreateUser, loginId));
+        List<Long> recordIds = new ArrayList<>();
+
+        records.forEach(record -> {
+            recordIds.add(record.getId());
+    });
+
+        List<Map<Long, RecordCondition>> mapList = new ArrayList<>();
+        //处理每一个考试
+        recordIds.forEach(recordId -> {
+            Map<Integer,Float> questionAndScore = new HashMap<>();
+            Map<Long, RecordCondition> map = new HashMap<>();
+            Map<Integer,Float> questionAndMax = new HashMap<>();
+
+            RecordCondition recordCondition = new RecordCondition();
+            String recordName = recordMapper.selectOne(new LambdaQueryWrapper<Record>()
+                    .eq(Record::getId, recordId)).getRecordName();
+            recordCondition.setRecordName(recordName);
+            // 1 是 题目 数量
+            List<Integer> questionNums = new ArrayList<>();
+            Integer count = Math.toIntExact(paperDetailMapper.selectCount(new LambdaQueryWrapper<PaperDetail>()
+                    .eq(PaperDetail::getGroupId, recordId).eq(PaperDetail::getType, 1)));
+            // 获得所有题号
+            List<PaperDetail> paperDetails = paperDetailMapper.selectList(new LambdaQueryWrapper<PaperDetail>()
+                    .eq(PaperDetail::getGroupId, recordId).eq(PaperDetail::getType, 1));
+            paperDetails.forEach(paperDetail -> {
+                if(!questionAndScore.containsKey(paperDetail.getQuestionNum())){
+                    questionAndScore.put(paperDetail.getQuestionNum(),0.0F);
+                    questionAndMax.put(paperDetail.getQuestionNum(),0.0F);
+                    questionNums.add(paperDetail.getQuestionNum());
+                }
+            });
+
+            recordCondition.setTotal(count);
+        // 每个人 的 结果 获取groupID
+            List<PaperResult> paperResults = paperResultMapper.selectList(new LambdaQueryWrapper<PaperResult>()
+                    .eq(PaperResult::getRecordId, recordId));
+            ArrayList groupIds = new ArrayList();
+
+            paperResults.forEach(paperResult -> {
+                if(!groupIds.contains(paperResult.getResultGroupId())){
+                    groupIds.add(paperResult.getResultGroupId());
+                }
+            });
+
+            groupIds.forEach(groupId -> {
+                List<PaperDetail> personalDetails = paperDetailMapper.selectList(new LambdaQueryWrapper<PaperDetail>()
+                        .eq(PaperDetail::getGroupId, groupId).eq(PaperDetail::getType, 3));
+                personalDetails.forEach(paperDetail -> {
+                    int QN = paperDetail.getQuestionNum();
+                    questionAndScore.put(QN,questionAndScore.get(QN) + paperDetail.getScore());
+                    questionAndMax.put(QN, Math.max(paperDetail.getScore(),questionAndMax.get(QN)));
+                });
+            });
+            List<Float> avgs = new ArrayList<>();
+            List<Float> maxNums = new ArrayList<>();
+
+            for(Map.Entry<Integer,Float> entry: questionAndScore.entrySet()){
+                entry.setValue(entry.getValue()/groupIds.size());
+            }
+            avgs.addAll(questionAndScore.values());
+            maxNums.addAll(questionAndMax.values());
+            recordCondition.setAverages(avgs);
+            recordCondition.setQuestionNums(questionNums);
+            recordCondition.setMaxNums(maxNums);
+//            recordConditions.add(recordCondition);
+            map.put(recordId,recordCondition);
+            mapList.add(map);
+        });
+        GetTotalConditionRespVO respVO = new GetTotalConditionRespVO();
+
+        respVO.setTotalConditions(mapList);
+
+        return Result.success(respVO);
+    }
+
 }

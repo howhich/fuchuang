@@ -23,7 +23,9 @@ import com.howhich.fuchuang.demos.mapper.RecordMapper;
 import com.howhich.fuchuang.demos.mapper.StudentMapper;
 import com.howhich.fuchuang.demos.service.PaperResultService;
 import com.howhich.fuchuang.demos.service.RecordsService;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -43,6 +45,8 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     private String paperurl;
     @Value("${file.pictureurl}")
     private String pictureurl;
+    @Value("${file.fileurl}")
+    private String fileurl;
     @Autowired
     private RecordMapper recordMapper;
     @Autowired
@@ -278,23 +282,31 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     }
 
     @Override
-    public Result<?> exportRecords(Long recordId) {
+    public Result<String> exportRecords(Long recordId) {
         List<PaperResult> paperResults = paperResultMapper.selectList(new LambdaQueryWrapper<PaperResult>()
                 .eq(PaperResult::getRecordId, recordId)
                 .orderByDesc(PaperResult::getScore));
 
+        List<ExportRecord> exportRecords = new ArrayList<>();
+        paperResults.forEach(paperResult -> {
+            ExportRecord exportRecord = new ExportRecord();
+            BeanUtils.copyProperties(paperResult, exportRecord);
+            exportRecords.add(exportRecord);
+        });
+
         String recordName = this.getOne(new LambdaQueryWrapper<Record>().eq(Record::getId, recordId)).getRecordName();
 
-        String tempFileName = recordName + System.currentTimeMillis() + ".xlsx";
+        String tempFileName = fileurl + recordName + System.currentTimeMillis() + ".xlsx";
 
-        EasyExcel.write(tempFileName,PaperResult.class)
+        EasyExcel.write(tempFileName,ExportRecord.class)
                 .sheet("考试导出")
-                .doWrite(paperResults);
-        return Result.success();
+                .doWrite(exportRecords);
+
+        return Result.success(tempFileName);
     }
 
     @Override
-    public Result<?> exportSelfRecords() {
+    public Result<String > exportSelfRecords() {
         String studentNum = studentMapper.selectOne(new LambdaQueryWrapper<Student>()
                 .eq(Student::getId, StpUtil.getLoginIdAsLong())
                 .last("limit 1")).getStudentNum();
@@ -304,12 +316,20 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
         List<PaperResult> paperResults = paperResultMapper.selectList(new LambdaQueryWrapper<PaperResult>()
                 .eq(PaperResult::getStudentNum, studentNum));
 
-        String tempFileName = name + "的试卷" + System.currentTimeMillis() + ".xlsx";
+        List<StudentExportRecord> studentExportRecords = new ArrayList<>();
+        paperResults.forEach(paperResult -> {
+            StudentExportRecord studentExportRecord = new StudentExportRecord();
+            BeanUtils.copyProperties(paperResult, studentExportRecord);
+            studentExportRecords.add(studentExportRecord);
+        });
 
-        EasyExcel.write(tempFileName,PaperResult.class)
+        String tempFileName =fileurl+ name + "的试卷" + System.currentTimeMillis() + ".xlsx";
+
+        EasyExcel.write(tempFileName,StudentExportRecord.class)
                 .sheet(name + "的试卷记录")
-                .doWrite(paperResults);
-        return Result.success();
+                .doWrite(studentExportRecords);
+
+        return Result.success(tempFileName);
 
 
     }

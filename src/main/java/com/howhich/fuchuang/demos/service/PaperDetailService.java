@@ -3,10 +3,7 @@ package com.howhich.fuchuang.demos.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.entity.Base.PaperDetail;
-import com.howhich.fuchuang.demos.entity.resp.GetPaperDetailRespVO;
-import com.howhich.fuchuang.demos.entity.resp.GetPaperVisualizationRespVO;
-import com.howhich.fuchuang.demos.entity.resp.GetTotalJudgeRespVO;
-import com.howhich.fuchuang.demos.entity.resp.UpdatePaperDetailReqVO;
+import com.howhich.fuchuang.demos.entity.resp.*;
 
 import java.util.List;
 
@@ -24,5 +21,11 @@ public interface PaperDetailService extends IService<PaperDetail> {
 
     Result updatePaperDetail(UpdatePaperDetailReqVO reqVO);
 
-    Result exportPaperDetail(Long groupId);
+    Result<String> exportPaperDetail(Long groupId);
+
+    Result<GetScoreRespVO> getScoreRespVO(Long groupId);
+
+    Result<GetErrorRateRespVO> getErrorRate(Long groupId);
+
+    Result<GetTotalConditionRespVO> getTotalCondition();
 }

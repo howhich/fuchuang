@@ -39,14 +39,15 @@ public class RecordController {
     @GetMapping("/exportRecords")
     @ApiOperation(value = "老师导出考试记录")
     @SaCheckRole(value = RoleType.TEACHER.code)
-    public Result<?> exportRecords(@RequestParam Long recordId){
+    public Result<String> exportRecords(@RequestParam Long recordId){
         return recordsService.exportRecords(recordId);
     }
 
     @GetMapping("/exportStudentSelfRecords")
     @ApiOperation(value = "学生导出考试记录")
     @SaCheckRole(value = RoleType.STUDENT.code)
-    public Result<?> exportStudentSelfRecords(){
+    public Result<String> exportStudentSelfRecords(){
+
         return recordsService.exportSelfRecords();
     }
 }
