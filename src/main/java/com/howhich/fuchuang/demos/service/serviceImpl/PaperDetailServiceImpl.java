@@ -3,6 +3,8 @@ package com.howhich.fuchuang.demos.service.serviceImpl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.howhich.fuchuang.demos.Utils.FileUtils;
+import com.howhich.fuchuang.demos.Utils.WordUtils;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.entity.Base.*;
 import com.howhich.fuchuang.demos.entity.resp.*;
@@ -11,11 +13,17 @@ import com.howhich.fuchuang.demos.mapper.PaperResultMapper;
 import com.howhich.fuchuang.demos.mapper.RecordMapper;
 import com.howhich.fuchuang.demos.service.PaperDetailService;
 import com.howhich.fuchuang.demos.service.RecordsService;
+import freemarker.template.TemplateException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -30,6 +38,8 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
     private RedisTemplate redisTemplate;
     @Autowired
     private RecordMapper recordMapper;
+    @Value("${file.fileurl}")
+    private String fileurl;
     @Override
     public Result<GetTotalJudgeRespVO> getTotalPaperDetailById(Long id) {
 //        LambdaQueryWrapper<PaperDetail> queryWrapper = new LambdaQueryWrapper();
@@ -162,9 +172,38 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
 
     @Override
     public Result<String> exportPaperDetail(Long groupId) {
-           
+        //todo 试卷详情
 
-        return Result.success();
+        Map<String,Object> dataMap = new HashMap<>();
+
+        List<Map<String,Object>> ExportEntity = new ArrayList<>();
+
+        Map<String,Object> et1 = new HashMap<>();
+
+        List<PaperDetail> paperDetails = paperDetailMapper.selectList(new LambdaQueryWrapper<PaperDetail>()
+                .eq(PaperDetail::getGroupId, groupId).eq(PaperDetail::getType, 3));
+
+        paperDetails.forEach(paperDetail -> {
+            Map<String,Object> et = new HashMap<>();
+            et.put("questionNum",paperDetail.getQuestionNum());
+            et.put("score",paperDetail.getScore());
+            et.put("comment",paperDetail.getComment());
+            et.put("image", FileUtils.getImgFileToBase64(paperDetail.getUrl()));
+            ExportEntity.add(et);
+        });
+        dataMap.put("ExportEntity",ExportEntity);
+
+        WordUtils wordUtils = new WordUtils();
+        String wordName = fileurl + System.currentTimeMillis() +"test.doc";
+        try {
+            wordUtils.exportWord(dataMap,"temp.xml",wordName,fileurl);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (TemplateException e) {
+            throw new RuntimeException(e);
+        }
+
+        return Result.success(wordName);
     }
 
     @Override
@@ -244,11 +283,13 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
     });
 
         List<Map<Long, RecordCondition>> mapList = new ArrayList<>();
+        Map<Long, RecordCondition> map = new HashMap<>();
+
         //处理每一个考试
         recordIds.forEach(recordId -> {
             Map<Integer,Float> questionAndScore = new HashMap<>();
-            Map<Long, RecordCondition> map = new HashMap<>();
             Map<Integer,Float> questionAndMax = new HashMap<>();
+            Map<Integer,Integer> failNum = new HashMap<>();
 
             RecordCondition recordCondition = new RecordCondition();
             String recordName = recordMapper.selectOne(new LambdaQueryWrapper<Record>()
@@ -265,6 +306,7 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
                 if(!questionAndScore.containsKey(paperDetail.getQuestionNum())){
                     questionAndScore.put(paperDetail.getQuestionNum(),0.0F);
                     questionAndMax.put(paperDetail.getQuestionNum(),0.0F);
+                    failNum.put(paperDetail.getQuestionNum(),0);
                     questionNums.add(paperDetail.getQuestionNum());
                 }
             });
@@ -274,6 +316,8 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
             List<PaperResult> paperResults = paperResultMapper.selectList(new LambdaQueryWrapper<PaperResult>()
                     .eq(PaperResult::getRecordId, recordId));
             ArrayList groupIds = new ArrayList();
+
+            List<Integer> failNums = new ArrayList<>();
 
             paperResults.forEach(paperResult -> {
                 if(!groupIds.contains(paperResult.getResultGroupId())){
@@ -288,6 +332,9 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
                     int QN = paperDetail.getQuestionNum();
                     questionAndScore.put(QN,questionAndScore.get(QN) + paperDetail.getScore());
                     questionAndMax.put(QN, Math.max(paperDetail.getScore(),questionAndMax.get(QN)));
+                    if(paperDetail.getScore()!=paperDetail.getTotalScore()){
+                        failNum.put(QN,failNum.get(QN)+1);
+                    }
                 });
             });
             List<Float> avgs = new ArrayList<>();
@@ -298,16 +345,19 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
             }
             avgs.addAll(questionAndScore.values());
             maxNums.addAll(questionAndMax.values());
+            failNums.addAll(failNum.values());
+
             recordCondition.setAverages(avgs);
             recordCondition.setQuestionNums(questionNums);
             recordCondition.setMaxNums(maxNums);
+            recordCondition.setFailNum(failNums);
 //            recordConditions.add(recordCondition);
             map.put(recordId,recordCondition);
-            mapList.add(map);
+//            mapList.add(map);
         });
         GetTotalConditionRespVO respVO = new GetTotalConditionRespVO();
 
-        respVO.setTotalConditions(mapList);
+        respVO.setTotalConditions(map);
 
         return Result.success(respVO);
     }

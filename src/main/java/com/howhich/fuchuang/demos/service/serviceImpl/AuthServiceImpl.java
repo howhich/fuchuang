@@ -29,6 +29,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
@@ -117,6 +118,7 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
         user.setStatus(UserStatus.YES.code);
 //        user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
         user.setPassword(SM4EncryptUtil.encrypt(user.getPassword()));
+        user.setRole(RoleType.TEACHER.code);
         this.save(user);
         user = this.getOne(new LambdaQueryWrapper<User>().orderByDesc(User::getCreateTime)
                 .last("limit 1"));
@@ -202,6 +204,7 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     }
 
     @Override
+    @Transactional
     public Result registeStudent(TeacherRegisteReqVO reqVO) {
         //通过学号判断是否存在该学生
         Student student1 = studentService.getOne(new LambdaQueryWrapper<Student>().eq(Student::getStudentNum, reqVO.getStudentNum()));
@@ -248,12 +251,12 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
                 AssertUtils.isFalse(ObjectUtils.isEmpty(student),ExceptionsEnums.UserEX.USER_HAVE);
                 }
         }
-
+        String username = this.getOne(new LambdaQueryWrapper<User>().eq(User::getId, id)).getUsername();
         User user = User.builder()
                 .role(RoleType.STUDENT.code)
 //                .password(DigestUtils.md5DigestAsHex(reqVO.getPassword().getBytes()))
                 .status(UserStatus.YES.code)
-                .username((String) redisTemplate.opsForValue().get("username"))
+                .username(username)
                 .id(id)
                 .build();
         this.updateById(user);
@@ -269,7 +272,7 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
     @Override
     public Result teacherEdit(TeacherEditReqVO reqVO) {
 //        String oldPass = DigestUtils.md5DigestAsHex(reqVO.getOldPass().getBytes()) ;
-        String oldPass = SM4EncryptUtil.decrypt(reqVO.getOldPass());
+        String oldPass = SM4EncryptUtil.encrypt(reqVO.getOldPass());
         long id = StpUtil.getLoginIdAsLong();
         User one = this.getOne(new LambdaQueryWrapper<User>()
                 .eq(User::getId, id)
@@ -297,8 +300,9 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
 
         Student student = studentService.getOne(new LambdaQueryWrapper<Student>().eq(Student::getId,id));
         User user = this.getOne(new LambdaQueryWrapper<User>().eq(User::getId, id));
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(user),ExceptionsEnums.UserEX.ACCOUNT_NOT_FIND);
+        AssertUtils.isFalse(user.getRole().equals(RoleType.STUDENT.code),ExceptionsEnums.UserEX.ACCOUNT_NOT_FIND);
         GetStudentInfoRespVO resp = GetStudentInfoRespVO.builder()
-//                .changeable(student.getChangeable())
                 .StudentNum(student.getStudentNum())
                 .name(student.getName())
                 .password(user.getPassword())

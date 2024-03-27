@@ -11,6 +11,7 @@ import com.howhich.fuchuang.demos.Utils.SM4EncryptUtil;
 import com.howhich.fuchuang.demos.Utils.exception.AssertUtils;
 import com.howhich.fuchuang.demos.Utils.exception.ExceptionsEnums;
 import com.howhich.fuchuang.demos.Utils.exception.TimeUtil;
+import com.howhich.fuchuang.demos.constant.RoleType;
 import com.howhich.fuchuang.demos.entity.Base.Student;
 import com.howhich.fuchuang.demos.entity.Base.StudentInfo;
 import com.howhich.fuchuang.demos.entity.Base.User;
@@ -32,6 +33,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static cn.dev33.satoken.SaManager.log;
 
@@ -50,6 +53,7 @@ public class ImportBatchStudentsListener extends AnalysisEventListener<StudentIn
     private FileWriter fileWriter;
 
     private BufferedWriter bufferedWriter;
+
 
     @Override
     public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
@@ -114,14 +118,16 @@ public class ImportBatchStudentsListener extends AnalysisEventListener<StudentIn
                         .username(info.getStudentNum())
 //                        .password(DigestUtils.md5DigestAsHex(password.getBytes()))
                         .password(SM4EncryptUtil.encrypt(password))
+                        .role(RoleType.STUDENT.code)
                 .build());
         Long id = usersInfoMapper.selectOne(new LambdaQueryWrapper<User>()
-                        .orderByDesc(User::getCreateTime)
+                        .orderByDesc(User::getCreateTime).orderByDesc(User::getId)
                         .last("limit 1")).getId();
         studentMapper.insert(Student.builder()
                         .name(info.getName())
                         .studentNum(info.getStudentNum())
                         .id(id)
+                        .teacherId(ObjectUtils.isNotEmpty(loginIdAsLong)?loginIdAsLong:0)
                         .build());
         dataNum++;
     }
@@ -130,6 +136,9 @@ public class ImportBatchStudentsListener extends AnalysisEventListener<StudentIn
     @Transactional
     public void doAfterAllAnalysed(AnalysisContext context){
         try {
+            if(ObjectUtils.isEmpty(bufferedWriter)){
+                return;
+            }
             bufferedWriter.close();
             fileWriter.close();
 
@@ -142,8 +151,6 @@ public class ImportBatchStudentsListener extends AnalysisEventListener<StudentIn
             log.info("{}条数据上传成功",dataNum);
         }catch (Exception e){
             e.printStackTrace();
-        } finally {
-            importFile.delete();
         }
 
     }

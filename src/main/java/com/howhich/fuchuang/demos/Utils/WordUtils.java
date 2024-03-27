@@ -16,12 +16,12 @@ public class WordUtils {
      * @param path 导出word的路径以及文件名称
      * 通过模板导出word格式文件
      * */
-    public void exportWord(Map<String,Object> dataMap,String templateName,String path) throws IOException, TemplateException {
+    public void exportWord(Map<String,Object> dataMap,String templateName,String path,String tempDir) throws IOException, TemplateException {
         //Configuration 用于读取ftl文件
         Configuration configuration = new Configuration(new Version("2.3.0"));
         configuration.setDefaultEncoding("utf-8");
         //指定路径（根据某个类的相对路径指定）setDirectoryForTemplateLoading
-        configuration.setDirectoryForTemplateLoading(new File("D:\\resource"));
+        configuration.setDirectoryForTemplateLoading(new File(tempDir));
         //输出文档路径及名称
         File outFile = new File(path);
         //以utf-8的编码读取ftl文件

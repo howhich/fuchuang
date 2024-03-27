@@ -11,5 +11,5 @@ import java.util.Map;
 @Data
 public class GetTotalConditionRespVO {
 
-    private List<Map<Long, RecordCondition>> totalConditions;
+    private Map<Long, RecordCondition> totalConditions;
 }

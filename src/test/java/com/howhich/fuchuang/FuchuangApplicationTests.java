@@ -67,7 +67,7 @@ class FuchuangApplicationTests {
 
         WordUtils wordUtils = new WordUtils();
         String wordName = "D:\\resource\\test.doc";
-        wordUtils.exportWord(dataMap,"temp.xml",wordName);
+        wordUtils.exportWord(dataMap,"temp.xml",wordName,"D:\\resource");
     }
     @Test
     void ImageTest() throws IOException, TemplateException {

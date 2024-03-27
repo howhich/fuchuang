@@ -17,5 +17,6 @@ public class RecordCondition {
     private List<Integer> questionNums;
     private List<Float> averages;
     private List<Float> maxNums;
+    private List<Integer> failNum;
     private Integer total;
 }
