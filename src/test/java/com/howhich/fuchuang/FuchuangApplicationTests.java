@@ -18,6 +18,7 @@ import com.howhich.fuchuang.demos.entity.Base.PaperDetail;
 import com.howhich.fuchuang.demos.entity.Base.Record;
 import com.howhich.fuchuang.demos.entity.Base.User;
 import com.howhich.fuchuang.demos.mapper.UsersInfoMapper;
+import com.howhich.fuchuang.demos.service.AuthService;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -42,7 +43,18 @@ import static cn.hutool.core.util.RandomUtil.*;
 class FuchuangApplicationTests {
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    private AuthService authService;
 
+    @Test
+    void insertTest() {
+        User user = new User();
+        user.setUsername("howhich111");
+        user.setPassword("123456");
+        authService.save(user);
+        System.out.printf(String.valueOf(user.getId()));
+
+    }
     @Test
     void ListImageTest() throws TemplateException, IOException {
         Map<String,Object> dataMap = new HashMap<>();

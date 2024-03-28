@@ -41,6 +41,12 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
     private RecordMapper recordMapper;
     @Value("${file.fileurl}")
     private String fileurl;
+    @Value("${file.baseurl}")
+    private String baseurl;
+    @Value("${file.downloadurl}")
+    private String downloadurl;
+    @Value("${file.downloadfileurl}")
+    private String downloadfileurl;
     @Override
     public Result<GetTotalJudgeRespVO> getTotalPaperDetailById(Long id) {
 //        LambdaQueryWrapper<PaperDetail> queryWrapper = new LambdaQueryWrapper();
@@ -113,7 +119,7 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
         List<String> answerUrls = new ArrayList<>();
         List<PaperDetail> answerPapers = paperDetailMapper.selectList(new LambdaQueryWrapper<PaperDetail>()
                 .eq(PaperDetail::getGroupId, recordId)
-                .eq(PaperDetail::getType, 1)
+                .eq(PaperDetail::getType, 2)
                 .orderByAsc(PaperDetail::getQuestionNum));
         answerPapers.forEach(originalPaper-> {
             answerUrls.add(originalPaper.getUrl());
@@ -190,13 +196,14 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
             et.put("questionNum",paperDetail.getQuestionNum());
             et.put("score",paperDetail.getScore());
             et.put("comment",paperDetail.getComment());
-            et.put("image", FileUtils.getImgFileToBase64(paperDetail.getUrl()));
+            et.put("image", FileUtils.getImgFileToBase64( baseurl+ paperDetail.getUrl()));
             ExportEntity.add(et);
         });
         dataMap.put("ExportEntity",ExportEntity);
 
         WordUtils wordUtils = new WordUtils();
-        String wordName = fileurl + System.currentTimeMillis() +"test.doc";
+        long timeMillis = System.currentTimeMillis();
+        String wordName = fileurl +  timeMillis +"test.doc";
         try {
             wordUtils.exportWord(dataMap,"temp.xml",wordName,fileurl);
         } catch (IOException e) {
@@ -205,7 +212,7 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
             throw new RuntimeException(e);
         }
 
-        return Result.success(wordName);
+        return Result.success(downloadfileurl+timeMillis +"test.doc");
     }
 
     @Override
@@ -346,7 +353,10 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
                 personalDetails.forEach(paperDetail -> {
                     int QN = paperDetail.getQuestionNum();
                     questionAndScore.put(QN,questionAndScore.get(QN) + paperDetail.getScore());
-                    questionAndMax.put(QN, Math.max(paperDetail.getScore(),questionAndMax.get(QN)));
+                    if(paperDetail.getScore()==paperDetail.getTotalScore()){
+                        questionAndMax.put(QN, questionAndMax.get(QN)+1);
+//                        questionAndMax.put(QN, Math.max(paperDetail.getScore(),questionAndMax.get(QN)));
+                    }
                     if(paperDetail.getScore()!=paperDetail.getTotalScore()){
                         failNum.put(QN,failNum.get(QN)+1);
                     }

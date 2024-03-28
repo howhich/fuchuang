@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class StudentExportRecord extends BaseDeleteEntity{
+public class StudentExportRecord {
 
     @ApiModelProperty(notes = "考试名称")
     private String recordName;

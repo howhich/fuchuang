@@ -61,10 +61,12 @@ public class InTimeServiceImpl implements InTimeService {
                 record.setStatus("DONE");
 
                 recordsService.save(record);
-                Long id = recordsService.getOne(new LambdaQueryWrapper<Record>()
-                        .orderByDesc(Record::getCreateTime)
-                        .last("limit 1")).getId();
-                record.setId(id);
+                Long id = record.getId();
+                //todo 改了的
+//                Long id = recordsService.getOne(new LambdaQueryWrapper<Record>()
+//                        .orderByDesc(Record::getCreateTime)
+//                        .last("limit 1")).getId();
+//                record.setId(record.getId());
                 fileNames.forEach(fileName->{
 //                "/www/wwwroot/picture/"
                     int lastIndex = fileName.lastIndexOf("/");

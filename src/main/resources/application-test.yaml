@@ -4,6 +4,9 @@ file:
   pictureurl: /www/wwwroot/picture/
   fileurl: /www/wwwroot/file/
   downloadurl: /picture/
+  baseurl: /www/wwwroot
+  downloadfileurl: /file/
+
 spring:
   redis:
     # Redis数据库索引（默认为0）

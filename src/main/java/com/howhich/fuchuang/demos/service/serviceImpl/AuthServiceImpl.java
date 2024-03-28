@@ -120,8 +120,8 @@ public class AuthServiceImpl extends ServiceImpl<UsersInfoMapper, User> implemen
         user.setPassword(SM4EncryptUtil.encrypt(user.getPassword()));
         user.setRole(RoleType.TEACHER.code);
         this.save(user);
-        user = this.getOne(new LambdaQueryWrapper<User>().orderByDesc(User::getCreateTime)
-                .last("limit 1"));
+//        user = this.getOne(new LambdaQueryWrapper<User>().orderByDesc(User::getCreateTime)
+//                .last("limit 1"));
         Long id = user.getId();
             Teacher teacher = Teacher.builder()
                     .id(user.getId())

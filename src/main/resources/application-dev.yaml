@@ -4,7 +4,8 @@ file:
   pictureurl: D:\code\fuchuang\picture\
   fileurl: D:\code\fuchuang\file\
   downloadurl: /picture/
-
+  filedownloadurl: /file/
+  baseurl: /www/wwwroot
 spring:
   redis:
     # Redis数据库索引（默认为0）

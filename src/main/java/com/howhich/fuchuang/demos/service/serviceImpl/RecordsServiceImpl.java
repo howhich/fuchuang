@@ -49,6 +49,8 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     private String downloadurl;
     @Value("${file.fileurl}")
     private String fileurl;
+    @Value("${file.downloadfileurl}")
+    private String downloadfileurl;
     @Autowired
     private RecordMapper recordMapper;
     @Autowired
@@ -86,6 +88,8 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
 
 //        String name = file.getName();//file
         String filename = file.getOriginalFilename();//qq截图2024.png
+
+        AssertUtils.isFalse((filename.split("_").length == 3),ExceptionsEnums.File.ILLEGAL_FILENAME);
 
         String[] split = filename.split("\\.");
         String first = split[0];
@@ -177,10 +181,11 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
             record.setStatus("JUDGING");
 
             this.save(record);
-            Long id = this.getOne(new LambdaQueryWrapper<Record>()
-                    .orderByDesc(Record::getCreateTime)
-                    .last("limit 1")).getId();
-            record.setId(id);
+            Long id = record.getId();
+//            Long id = this.getOne(new LambdaQueryWrapper<Record>()
+//                    .orderByDesc(Record::getCreateTime)
+//                    .last("limit 1")).getId();
+//            record.setId(id);
             fileNames.forEach(fileName->{
 //                "/www/wwwroot/picture/"
                 int lastIndex = fileName.lastIndexOf("/");
@@ -191,7 +196,7 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
                 String[] strings = fileName.split("_");
                 String pictureType = strings[0];
                 String studentNum = strings[1];
-                String pageNum = strings[2];
+                String questionNum = strings[2];
 
 
                 String name = "empty";
@@ -243,6 +248,7 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
 //                        url.setType(Integer.parseInt(pictureType));
 //                        urlService.save(url);
                     PaperDetail detail = new PaperDetail();
+                    detail.setQuestionNum(Integer.parseInt(questionNum));
                     detail.setUrl(originFileName);
                     detail.setGroupId(id);
                     detail.setType(Integer.parseInt(pictureType));
@@ -298,13 +304,16 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
 
         String recordName = this.getOne(new LambdaQueryWrapper<Record>().eq(Record::getId, recordId)).getRecordName();
 
-        String tempFileName = fileurl + recordName + System.currentTimeMillis() + ".xlsx";
+        long timeMillis = System.currentTimeMillis();
+
+        String tempFileName = fileurl + recordName + timeMillis + ".xlsx";
 
         EasyExcel.write(tempFileName,ExportRecord.class)
                 .sheet("考试导出")
                 .doWrite(exportRecords);
+        String rName = downloadfileurl + recordName + timeMillis + ".xlsx";
 
-        return Result.success(tempFileName);
+        return Result.success(rName);
     }
 
     @Override
@@ -320,18 +329,25 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
 
         List<StudentExportRecord> studentExportRecords = new ArrayList<>();
         paperResults.forEach(paperResult -> {
+            Long recordId = paperResult.getRecordId();
+            String recordName = recordMapper.selectOne(new LambdaQueryWrapper<Record>()
+                    .eq(Record::getId, recordId)).getRecordName();
             StudentExportRecord studentExportRecord = new StudentExportRecord();
             BeanUtils.copyProperties(paperResult, studentExportRecord);
+            studentExportRecord.setRecordName(recordName);
             studentExportRecords.add(studentExportRecord);
         });
+        long timeMillis = System.currentTimeMillis();
 
-        String tempFileName =fileurl+ name + "的试卷" + System.currentTimeMillis() + ".xlsx";
+        String tempFileName =fileurl+ name + "的试卷" + timeMillis + ".xlsx";
 
         EasyExcel.write(tempFileName,StudentExportRecord.class)
                 .sheet(name + "的试卷记录")
                 .doWrite(studentExportRecords);
 
-        return Result.success(tempFileName);
+        String rName = downloadfileurl + name + "的试卷" + timeMillis + ".xlsx";
+
+        return Result.success(rName);
 
 
     }
