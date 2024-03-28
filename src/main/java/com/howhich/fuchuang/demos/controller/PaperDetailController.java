@@ -69,7 +69,7 @@ public class PaperDetailController {
     }
 
     @ApiOperation(value = "老师获取全班情况")
-    @GetMapping("/getTotalCondition")
+    @PostMapping("/getTotalCondition")
     @SaCheckLogin
     public Result<GetTotalConditionRespVO> getTotalCondition(){
         return paperDetailService.getTotalCondition();

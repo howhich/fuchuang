@@ -2,6 +2,8 @@ file:
   separator: \
   paperurl: src/main/resources/static/
   pictureurl: /www/wwwroot/picture/
+  fileurl: /www/wwwroot/file/
+  downloadurl: /picture/
 spring:
   redis:
     # Redis数据库索引（默认为0）
@@ -15,5 +17,5 @@ spring:
     username: root
     password: mysql888
     driver-class-name: com.mysql.cj.jdbc.Driver
-    #    url: jdbc:mysql://49.234.181.190:3306/fuchuang
-    url: jdbc:mysql://localhost/fuchuang
+    url: jdbc:mysql://49.234.181.190:3306/fuchuang
+#    url: jdbc:mysql://localhost/fuchuang

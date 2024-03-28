@@ -14,6 +14,7 @@ import com.howhich.fuchuang.demos.mapper.RecordMapper;
 import com.howhich.fuchuang.demos.service.PaperDetailService;
 import com.howhich.fuchuang.demos.service.RecordsService;
 import freemarker.template.TemplateException;
+import org.apache.commons.collections4.OrderedMap;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -181,7 +182,8 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
         Map<String,Object> et1 = new HashMap<>();
 
         List<PaperDetail> paperDetails = paperDetailMapper.selectList(new LambdaQueryWrapper<PaperDetail>()
-                .eq(PaperDetail::getGroupId, groupId).eq(PaperDetail::getType, 3));
+                .eq(PaperDetail::getGroupId, groupId).eq(PaperDetail::getType, 3)
+                .orderByAsc(PaperDetail::getQuestionNum));
 
         paperDetails.forEach(paperDetail -> {
             Map<String,Object> et = new HashMap<>();
@@ -209,7 +211,9 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
     @Override
     public Result<GetScoreRespVO> getScoreRespVO(Long groupId) {
         List<PaperDetail> paperDetails = paperDetailMapper.selectList(new LambdaQueryWrapper<PaperDetail>()
-                .eq(PaperDetail::getGroupId, groupId));
+                .eq(PaperDetail::getGroupId, groupId)
+                .eq(PaperDetail::getType,3)
+                .orderByAsc(PaperDetail::getQuestionNum));
         GetScoreRespVO respVO = new GetScoreRespVO();
         List<NumAndScore> numAndScores = new ArrayList<>();
         paperDetails.forEach(paperDetail -> {
@@ -238,22 +242,22 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
         paperDetails.forEach(paperDetail -> {
             if(paperDetail.getScore()/paperDetail.getTotalScore() < 0.001){
                 _0.updateAndGet(v -> v + 1);
-            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.001 ||
+            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.001 &&
                     paperDetail.getScore()/paperDetail.getTotalScore() <= 0.2){
                 _20.updateAndGet(v -> v + 1);
-            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.2 ||
+            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.2 &&
                     paperDetail.getScore()/paperDetail.getTotalScore() <= 0.4){
                 _40.updateAndGet(v -> v + 1);
-            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.4 ||
+            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.4 &&
                     paperDetail.getScore()/paperDetail.getTotalScore() <= 0.6){
                 _60.updateAndGet(v -> v + 1);
-            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.6 ||
+            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.6 &&
                     paperDetail.getScore()/paperDetail.getTotalScore() <= 0.8){
                 _80.updateAndGet(v -> v + 1);
-            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.8 ||
+            }else if(paperDetail.getScore()/paperDetail.getTotalScore() > 0.8 &&
                     paperDetail.getScore()/paperDetail.getTotalScore() < 1){
                 _99.updateAndGet(v -> v + 1);
-            }else if(paperDetail.getScore() == paperDetail.getTotalScore()  ){
+            }else if(paperDetail.getScore()/paperDetail.getTotalScore() == 1.0  ){
                 _100.updateAndGet(v -> v + 1);
             }
         });
@@ -275,7 +279,7 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
     public Result<GetTotalConditionRespVO> getTotalCondition() {
         long loginId = StpUtil.getLoginIdAsLong();
         List<Record> records = recordMapper.selectList(new LambdaQueryWrapper<Record>()
-                .eq(Record::getCreateUser, loginId));
+                .eq(Record::getCreateUser, loginId).eq(Record::getStatus,"DONE"));
         List<Long> recordIds = new ArrayList<>();
 
         records.forEach(record -> {
@@ -287,9 +291,9 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
 
         //处理每一个考试
         recordIds.forEach(recordId -> {
-            Map<Integer,Float> questionAndScore = new HashMap<>();
-            Map<Integer,Float> questionAndMax = new HashMap<>();
-            Map<Integer,Integer> failNum = new HashMap<>();
+            LinkedHashMap<Integer,Float> questionAndScore = new LinkedHashMap<>();
+            LinkedHashMap<Integer,Float> questionAndMax = new LinkedHashMap<>();
+            LinkedHashMap<Integer,Integer> failNum = new LinkedHashMap<>();
 
             RecordCondition recordCondition = new RecordCondition();
             String recordName = recordMapper.selectOne(new LambdaQueryWrapper<Record>()
@@ -297,11 +301,21 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
             recordCondition.setRecordName(recordName);
             // 1 是 题目 数量
             List<Integer> questionNums = new ArrayList<>();
+
+            // 每个人 的 结果 获取groupID
+            List<PaperResult> paperResults = paperResultMapper.selectList(new LambdaQueryWrapper<PaperResult>()
+                    .eq(PaperResult::getRecordId, recordId));
+            // 拿一个人的来得到题号
+            Long groupId1 = paperResults.get(0).getResultGroupId();
+
             Integer count = Math.toIntExact(paperDetailMapper.selectCount(new LambdaQueryWrapper<PaperDetail>()
-                    .eq(PaperDetail::getGroupId, recordId).eq(PaperDetail::getType, 1)));
+                    .eq(PaperDetail::getGroupId, groupId1).eq(PaperDetail::getType, 3).last("limit 1")));
             // 获得所有题号
             List<PaperDetail> paperDetails = paperDetailMapper.selectList(new LambdaQueryWrapper<PaperDetail>()
-                    .eq(PaperDetail::getGroupId, recordId).eq(PaperDetail::getType, 1));
+                    .eq(PaperDetail::getGroupId, groupId1).eq(PaperDetail::getType, 3)
+                    .orderByAsc(PaperDetail::getQuestionNum));
+
+
             paperDetails.forEach(paperDetail -> {
                 if(!questionAndScore.containsKey(paperDetail.getQuestionNum())){
                     questionAndScore.put(paperDetail.getQuestionNum(),0.0F);
@@ -313,8 +327,8 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
 
             recordCondition.setTotal(count);
         // 每个人 的 结果 获取groupID
-            List<PaperResult> paperResults = paperResultMapper.selectList(new LambdaQueryWrapper<PaperResult>()
-                    .eq(PaperResult::getRecordId, recordId));
+//            List<PaperResult> paperResults = paperResultMapper.selectList(new LambdaQueryWrapper<PaperResult>()
+//                    .eq(PaperResult::getRecordId, recordId));
             ArrayList groupIds = new ArrayList();
 
             List<Integer> failNums = new ArrayList<>();
@@ -327,7 +341,8 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
 
             groupIds.forEach(groupId -> {
                 List<PaperDetail> personalDetails = paperDetailMapper.selectList(new LambdaQueryWrapper<PaperDetail>()
-                        .eq(PaperDetail::getGroupId, groupId).eq(PaperDetail::getType, 3));
+                        .eq(PaperDetail::getGroupId, groupId).eq(PaperDetail::getType, 3)
+                        .orderByAsc(PaperDetail::getQuestionNum));
                 personalDetails.forEach(paperDetail -> {
                     int QN = paperDetail.getQuestionNum();
                     questionAndScore.put(QN,questionAndScore.get(QN) + paperDetail.getScore());

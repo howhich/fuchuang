@@ -45,6 +45,8 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
     private String paperurl;
     @Value("${file.pictureurl}")
     private String pictureurl;
+    @Value("${file.downloadurl}")
+    private String downloadurl;
     @Value("${file.fileurl}")
     private String fileurl;
     @Autowired
@@ -115,7 +117,8 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
             fileOutputStream.write(buffer, 0, len);
         }
         fileOutputStream.close();
-        return Result.success(basicURL);
+        String durl = downloadurl + first + "_" + uuid +"."+last ;
+        return Result.success(durl);
     }
 
     @Override

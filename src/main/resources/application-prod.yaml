@@ -3,6 +3,7 @@ file:
   paperurl: src/main/resources/static/
   pictureurl: /www/wwwroot/picture/
   fileurl: /www/wwwroot/file/
+  downloadurl: /picture/
 spring:
   redis:
     # Redis数据库索引（默认为0）
