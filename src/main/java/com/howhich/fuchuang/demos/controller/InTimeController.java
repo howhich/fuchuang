@@ -22,7 +22,7 @@ public class InTimeController {
     @Resource
     private InTimeService  inTimeService;
     @PostMapping("/uploadInTimePhotos")
-    @ApiOperation(value = "创建实时导入考试记录(第二次请求返回GroupId)")
+    @ApiOperation(value = "创建实时导入考试记录")
     public Result<InTimeRespVO> uploadInTimePhotos(@RequestBody InTimeReqVO reqVO){
         return inTimeService.uploadInTimePhotos(reqVO);
     }
