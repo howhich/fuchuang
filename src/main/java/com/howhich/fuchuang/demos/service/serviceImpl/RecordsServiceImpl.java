@@ -65,8 +65,9 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
 
     @Override
     public Result<GetImportRecordsRespVO> page(GetImportRecordsReqVO reqVO) {
+        //todo
         LambdaQueryWrapper queryWrapper = new LambdaQueryWrapper<Record>()
-                .orderByDesc(Record::getCreateTime);
+                .orderByDesc(Record::getCreateTime).ne(Record::getRecordName,"f");
         Page<Record> page = new Page<>(reqVO.getPage(),reqVO.getPageSize());
         page = this.page(page,queryWrapper);
 

@@ -1,19 +1,27 @@
 package com.howhich.fuchuang.demos.service.serviceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.howhich.fuchuang.demos.config.thread.AsyncExecutor;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.entity.Base.*;
 import com.howhich.fuchuang.demos.entity.req.InTimeReqVO;
+import com.howhich.fuchuang.demos.entity.resp.InTimeRespVO;
 import com.howhich.fuchuang.demos.entity.resp.PaperDetailRespVO;
+import com.howhich.fuchuang.demos.init.FakeEvent;
 import com.howhich.fuchuang.demos.mapper.PaperDetailMapper;
 import com.howhich.fuchuang.demos.mapper.PaperResultMapper;
+import com.howhich.fuchuang.demos.mapper.RecordMapper;
 import com.howhich.fuchuang.demos.mapper.StudentMapper;
 import com.howhich.fuchuang.demos.service.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.support.WebApplicationObjectSupport;
+import org.springframework.web.jsf.el.WebApplicationContextFacesELResolver;
 
 import javax.annotation.Resource;
 import java.time.Duration;
@@ -23,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class InTimeServiceImpl implements InTimeService {
+public class InTimeServiceImpl extends WebApplicationObjectSupport implements InTimeService {
     @Autowired
     private RedisTemplate redisTemplate;
 
@@ -35,14 +43,25 @@ public class InTimeServiceImpl implements InTimeService {
     private PaperResultMapper paperResultMapper;
     @Resource
     private PaperDetailMapper paperDetailMapper;
-
+    @Resource
+    private RecordMapper recordMapper;
     @Value("${photo.BaseURL}")
     private String BaseURL;
 //    @Autowired
 //    private RedisTemplate redisTemplate;
+
     @Override
-    public Result uploadInTimePhotos(InTimeReqVO reqVO) {
-        return Result.success();
+    public Result<InTimeRespVO> uploadInTimePhotos(InTimeReqVO reqVO) {
+        Long id = 9L;
+//        recordMapper.getDeletedOne(id);
+        InTimeRespVO respVO = new InTimeRespVO();
+        respVO.setGroupId(id);
+        Record record = recordMapper.selectOne(new LambdaQueryWrapper<Record>()
+                .eq(Record::getId, id));
+        record.setRecordName("英语测试3");
+        recordMapper.updateById(record);
+        return Result.success(respVO);
+
         //暂时做一个假逻辑
 //        if(ObjectUtils.isEmpty(redisTemplate.opsForValue().get("counter"))){
 //            redisTemplate.opsForValue().set("counter", 0);
@@ -146,17 +165,34 @@ public class InTimeServiceImpl implements InTimeService {
 
     @Override
     public Result getInTimeResult(Long groupId) {
+        ApplicationContext context = getApplicationContext();
         //todo FAKE
         if(ObjectUtils.isEmpty(redisTemplate.opsForValue().get("Counter" + groupId))){
             //缓存一分钟
             redisTemplate.opsForValue().set("Counter"+groupId,0, Duration.ofMinutes(1));
             return Result.fail("正在阅卷，请等待");
         }
-        String status = paperResultMapper.selectOne(new LambdaQueryWrapper<PaperResult>()
-                .eq(PaperResult::getResultGroupId, groupId).last("limit 1")).getStatus();
+//        String status = paperResultMapper.selectOne(new LambdaQueryWrapper<PaperResult>()
+//                .eq(PaperResult::getResultGroupId, groupId).last("limit 1")).getStatus();
 //        if(status.equals("WAIT")){
 //            return Result.fail("正在阅卷，请等待");
 //        }
+//        recordMapper.selectOne(new LambdaQueryWrapper<Record>()
+//                .eq(Record::getId, groupId));
+//        Record record = recordMapper.selectMyRecord(groupId);
+//        record.setStatus("DONE");
+//        recordMapper.update(record, new LambdaQueryWrapper<Record>()
+//                .eq(Record::getId, groupId));
+        Record record = recordMapper.selectOne(new LambdaQueryWrapper<Record>()
+                .eq(Record::getId, groupId));
+        record.setStatus("DONE");
+//        record.setRecordName("英语测试3");
+        recordMapper.updateById(record);
+        AsyncExecutor executor = AsyncExecutor.getExecutor();
+        executor.schedule(new Thread(()->{
+            context.publishEvent(new FakeEvent(""));
+        }));
+
         return Result.success("评阅完成");
     }
 

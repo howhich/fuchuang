@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.howhich.fuchuang.demos.mapper.RecordMapper">
+    <update id="setJAD">
+        update fuchuang.record set status = "JUDGING" , deleted = 1 where id = #{id}
+    </update>
+    <update id="updateMy">
+        update  fuchuang.record set record_Name = "f" where id = #{id}
+    </update>
+
+    <select id="getDeletedOne" resultType="com.howhich.fuchuang.demos.entity.Base.Record">
+        update fuchuang.record set deleted = 0  where deleted = 1 and id = #{id}
+    </select>
+    <select id="selectMyRecord" resultType="com.howhich.fuchuang.demos.entity.Base.Record">
+        select * from fuchuang.record where id = #{groupId}
+    </select>
+</mapper>

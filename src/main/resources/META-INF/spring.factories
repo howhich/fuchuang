@@ -1,4 +1,4 @@
 org.springframework.context.ApplicationContextInitializer=\
 com.howhich.fuchuang.demos.init.MyApplicationContextInitializer
-org.springframework.context.ApplicationListener=\
-com.howhich.fuchuang.demos.init.UserListener
+#org.springframework.context.ApplicationListener=\
+#com.howhich.fuchuang.demos.init.UserListener

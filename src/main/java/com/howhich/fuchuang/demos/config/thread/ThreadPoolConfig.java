@@ -76,9 +76,9 @@ public class ThreadPoolConfig {
                 }
 
                 //非Future类型
-                if (t != null){
-                    AssertUtils.throwException(t.getMessage());
-                }
+//                if (t != null){
+//                    AssertUtils.throwException(t.getMessage());
+//                }
             }
         };
     }

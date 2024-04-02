@@ -2,7 +2,9 @@ package com.howhich.fuchuang.demos.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.howhich.fuchuang.demos.constant.Result;
 import com.howhich.fuchuang.demos.constant.RoleType;
 import com.howhich.fuchuang.demos.entity.Base.Record;
@@ -93,11 +95,17 @@ public class TestController {
     @GetMapping("/redisTest")
     @ApiOperation("REDIS测试")
     public String redisTest() throws IOException, ClassNotFoundException {
-        User kobe = User.builder().id(1L).username("kobe").build();
-        redisTemplate.opsForValue().set("man",kobe);
-        Object o1 = redisTemplate.opsForValue().get("kobe");
-        return o1.toString();
+
+        Object o1 = redisTemplate.opsForValue().get("1");
+        if(ObjectUtil.isNotEmpty(o1)){
+            return o1.toString();
+        }
+        User micheal = User.builder().id(1L).username("micheal").build();
+        redisTemplate.opsForValue().set("1",micheal);
+        return micheal.toString();
+
     }
+
     @GetMapping("/normal")
     @ApiOperation("测试接口")
     public String normal(){

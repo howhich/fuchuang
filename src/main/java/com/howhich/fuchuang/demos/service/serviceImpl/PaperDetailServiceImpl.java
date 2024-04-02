@@ -286,7 +286,7 @@ public class PaperDetailServiceImpl extends ServiceImpl<PaperDetailMapper, Paper
     public Result<GetTotalConditionRespVO> getTotalCondition() {
         long loginId = StpUtil.getLoginIdAsLong();
         List<Record> records = recordMapper.selectList(new LambdaQueryWrapper<Record>()
-                .eq(Record::getCreateUser, loginId).eq(Record::getStatus,"DONE"));
+                .eq(Record::getCreateUser, loginId).eq(Record::getStatus,"DONE").ne(Record::getRecordName, "f"));
         List<Long> recordIds = new ArrayList<>();
 
         records.forEach(record -> {

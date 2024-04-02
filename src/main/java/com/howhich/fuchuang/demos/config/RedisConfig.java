@@ -2,6 +2,7 @@ package com.howhich.fuchuang.demos.config;
 
 
 import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
+import com.howhich.fuchuang.demos.entity.Base.User;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
@@ -26,11 +27,11 @@ public class RedisConfig {
     RedisConnectionFactory redisConnectionFactory;
 
     @Bean
-    @ConditionalOnMissingBean(name = "redisTemplate")
-    public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory factory) {
-        RedisTemplate<Object, Object> template = new RedisTemplate<>();
+//    @ConditionalOnMissingBean(name = "redisTemplate")
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
         //使用fastjson序列化
-        FastJsonRedisSerializer fastJsonRedisSerializer = new FastJsonRedisSerializer(Object.class);
+        FastJsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJsonRedisSerializer<>(Object.class);
         // value值的序列化采用fastJsonRedisSerializer
         template.setValueSerializer(fastJsonRedisSerializer);
         template.setHashValueSerializer(fastJsonRedisSerializer);
@@ -38,17 +39,18 @@ public class RedisConfig {
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setConnectionFactory(redisConnectionFactory);
+        System.out.println("REDIS HAS BEEN INIT");
         return template;
 
     }
 
-    @Bean
-    @ConditionalOnMissingBean(StringRedisTemplate.class)
-    public StringRedisTemplate stringRedisTemplate(){
+        @Bean
+        @ConditionalOnMissingBean(StringRedisTemplate.class)
+        public StringRedisTemplate stringRedisTemplate(){
 
-        StringRedisTemplate template = new StringRedisTemplate();
-        template.setConnectionFactory(redisConnectionFactory);
-        return template;
-    }
+            StringRedisTemplate template = new StringRedisTemplate();
+            template.setConnectionFactory(redisConnectionFactory);
+            return template;
+        }
 
 }
