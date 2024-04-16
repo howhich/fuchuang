@@ -65,20 +65,22 @@ public class RecordsServiceImpl extends ServiceImpl<RecordMapper, Record> implem
 
     @Override
     public Result<GetImportRecordsRespVO> page(GetImportRecordsReqVO reqVO) {
-        //todo
+        //todo 修改过了PageHelper是吧下一个SQL语句动态注入limit 不要放在count里面去了
         LambdaQueryWrapper queryWrapper = new LambdaQueryWrapper<Record>()
                 .orderByDesc(Record::getCreateTime).ne(Record::getRecordName,"f");
-        Page<Record> page = new Page<>(reqVO.getPage(),reqVO.getPageSize());
-        page = this.page(page,queryWrapper);
+//        Page<Record> page = new Page<>(reqVO.getPage(),reqVO.getPageSize());
+//        page = this.page(page,queryWrapper);
 
         PageHelper.startPage(reqVO.getPage(),reqVO.getPageSize());
-        page = this.page(page,queryWrapper);
+//        page = this.page(page,queryWrapper);
+        List list = recordMapper.selectList(queryWrapper);
 
         long count = this.count(queryWrapper);
 
         GetImportRecordsRespVO respVO = new GetImportRecordsRespVO();
-        respVO.setList(page.getRecords());
+//        respVO.setList(page.getRecords());
         respVO.setTotal(count);
+        respVO.setList(list);
         return Result.success(respVO);
     }
 

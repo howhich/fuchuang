@@ -28,11 +28,7 @@ public class LoginController {
 
     @ApiOperation(value = "用户登录")
     @PostMapping("/userLogin")
-    public Result<UserLoginRespVO> login(@RequestBody @Validated UserLoginReqVO reqVO, BindingResult result){
-        if(result.hasErrors()){
-            List<ObjectError> errors = result.getAllErrors();
-            errors.forEach(objectError -> System.out.println(objectError.getObjectName() + "====" + objectError.getDefaultMessage()));
-        }
+    public Result<UserLoginRespVO> login(@RequestBody UserLoginReqVO reqVO){
         return loginService.userLogin(reqVO);
     }
     @ApiOperation(value = "用户登出")

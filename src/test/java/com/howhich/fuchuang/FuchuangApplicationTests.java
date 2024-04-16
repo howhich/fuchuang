@@ -22,6 +22,7 @@ import com.howhich.fuchuang.demos.service.AuthService;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,8 @@ class FuchuangApplicationTests {
 
     }
     @Test
-    void ListImageTest() throws TemplateException, IOException {
+    @SneakyThrows
+    void ListImageTest() throws TemplateException {
         Map<String,Object> dataMap = new HashMap<>();
 
         List<Map<String,Object>> ExportEntity = new ArrayList<>();
